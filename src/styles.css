@@ -1,5 +1,12 @@
 :root {
-  font-family: Inter, "Pretendard", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    Inter,
+    "Pretendard",
+    "Noto Sans KR",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: #17202a;
   background: #f4f7f6;
   font-synthesis: none;
@@ -403,7 +410,7 @@ a {
 
 .person-row {
   display: grid;
-  grid-template-columns: 12px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 10px;
@@ -411,6 +418,26 @@ a {
   background: #ffffff;
   color: #17202a;
   text-align: left;
+}
+.person-row-photo,
+.person-row-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  flex: 0 0 44px;
+}
+
+.person-row-photo {
+  object-fit: cover;
+  background: #edf3f0;
+}
+
+.person-row-avatar {
+  display: grid;
+  place-items: center;
+  background: #244d46;
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .person-row:hover {

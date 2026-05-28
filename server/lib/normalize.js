@@ -1,3 +1,22 @@
+function normalizePhotoUrl(item) {
+  const value = firstValue(item, ["photoUrl", "tknphotoFile", "photo", "imageUrl"]);
+  if (!value) return "";
+
+  if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:image/")) {
+    return value;
+  }
+
+  if (value.startsWith("//")) {
+    return `https:${value}`;
+  }
+
+  if (value.length > 100 && /^[A-Za-z0-9+/=\s]+$/.test(value)) {
+    return `data:image/jpeg;base64,${value.replace(/\s/g, "")}`;
+  }
+
+  return "";
+}
+
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
 
 function firstValue(source, keys, fallback = "") {
@@ -46,7 +65,7 @@ export function normalizeMissingPerson(item, index = 0) {
     name: firstValue(item, ["nm", "name"], "이름 미상"),
     age: firstValue(item, ["ageNow", "age"], "미상"),
     gender: firstValue(item, ["sexdstnDscd", "gender"], "미상"),
-    photoUrl: firstValue(item, ["photoUrl", "tknphotoFile", "photo", "imageUrl"]),
+    photoUrl: normalizePhotoUrl(item),
     missingAt: parseDate(firstValue(item, ["occrde", "missingAt", "detailDate"])),
     locationText,
     lat,

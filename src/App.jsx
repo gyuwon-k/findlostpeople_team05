@@ -9,7 +9,7 @@ import {
   Phone,
   Search,
   ShieldCheck,
-  UserRoundPlus
+  UserRoundPlus,
 } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -18,7 +18,7 @@ const tabs = [
   { id: "map", label: "실시간 지도", icon: MapPin },
   { id: "search", label: "실종자 검색", icon: Search },
   { id: "stats", label: "지역 분석", icon: BarChart3 },
-  { id: "register", label: "보호자 등록", icon: UserRoundPlus }
+  { id: "register", label: "보호자 등록", icon: UserRoundPlus },
 ];
 
 function fetchJson(path, options) {
@@ -52,7 +52,7 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
       if (!containerRef.current || mapRef.current) return;
       mapRef.current = new window.kakao.maps.Map(containerRef.current, {
         center: new window.kakao.maps.LatLng(37.5665, 126.978),
-        level: 7
+        level: 7,
       });
     }
   }, [containerRef]);
@@ -67,9 +67,14 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
 
     visible.forEach((person) => {
       const position = new window.kakao.maps.LatLng(person.lat, person.lng);
-      const marker = new window.kakao.maps.Marker({ position, title: person.name });
+      const marker = new window.kakao.maps.Marker({
+        position,
+        title: person.name,
+      });
       marker.setMap(mapRef.current);
-      window.kakao.maps.event.addListener(marker, "click", () => onSelect(person));
+      window.kakao.maps.event.addListener(marker, "click", () =>
+        onSelect(person),
+      );
       markersRef.current.push(marker);
       bounds.extend(position);
     });
@@ -80,8 +85,16 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
   }, [people, onSelect]);
 
   useEffect(() => {
-    if (!mapRef.current || !selected?.lat || !selected?.lng || !window.kakao?.maps) return;
-    mapRef.current.panTo(new window.kakao.maps.LatLng(selected.lat, selected.lng));
+    if (
+      !mapRef.current ||
+      !selected?.lat ||
+      !selected?.lng ||
+      !window.kakao?.maps
+    )
+      return;
+    mapRef.current.panTo(
+      new window.kakao.maps.LatLng(selected.lat, selected.lng),
+    );
   }, [selected]);
 }
 
@@ -122,7 +135,9 @@ function App() {
 
   useKakaoMap(mapRef, alerts, selected, setSelected);
 
-  const locatedCount = alerts.filter((person) => person.lat && person.lng).length;
+  const locatedCount = alerts.filter(
+    (person) => person.lat && person.lng,
+  ).length;
 
   return (
     <div className="app-shell">
@@ -174,7 +189,9 @@ function App() {
             onSelect={setSelected}
           />
         )}
-        {activeTab === "search" && <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />}
+        {activeTab === "search" && (
+          <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />
+        )}
         {activeTab === "stats" && <StatsView stats={stats} alerts={alerts} />}
         {activeTab === "register" && <RegisterView />}
       </main>
@@ -182,7 +199,16 @@ function App() {
   );
 }
 
-function MapView({ alerts, error, loading, locatedCount, mapRef, selected, onRefresh, onSelect }) {
+function MapView({
+  alerts,
+  error,
+  loading,
+  locatedCount,
+  mapRef,
+  selected,
+  onRefresh,
+  onSelect,
+}) {
   return (
     <section className="map-layout" aria-labelledby="map-title">
       <div className="map-area">
@@ -191,8 +217,16 @@ function MapView({ alerts, error, loading, locatedCount, mapRef, selected, onRef
             <h2 id="map-title">실시간 실종경보 지도</h2>
             <p>최근 경보를 위치 기반으로 확인하고 상세 정보로 이동합니다.</p>
           </div>
-          <button className="icon-button text-button" type="button" onClick={onRefresh}>
-            {loading ? <Loader2 className="spin" size={18} /> : <FileSearch size={18} />}
+          <button
+            className="icon-button text-button"
+            type="button"
+            onClick={onRefresh}
+          >
+            {loading ? (
+              <Loader2 className="spin" size={18} />
+            ) : (
+              <FileSearch size={18} />
+            )}
             새로고침
           </button>
         </div>
@@ -204,9 +238,21 @@ function MapView({ alerts, error, loading, locatedCount, mapRef, selected, onRef
         </div>
 
         <div className="map-canvas-wrap">
-          {KAKAO_JS_KEY ? <div ref={mapRef} className="map-canvas" aria-label="카카오맵" /> : <SetupNotice />}
-          {loading && <OverlayNotice icon={Loader2} text="안전Dream 데이터를 불러오는 중입니다." spinning />}
-          {error && <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />}
+          {KAKAO_JS_KEY ? (
+            <div ref={mapRef} className="map-canvas" aria-label="카카오맵" />
+          ) : (
+            <SetupNotice />
+          )}
+          {loading && (
+            <OverlayNotice
+              icon={Loader2}
+              text="안전Dream 데이터를 불러오는 중입니다."
+              spinning
+            />
+          )}
+          {error && (
+            <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />
+          )}
         </div>
       </div>
 
@@ -216,15 +262,32 @@ function MapView({ alerts, error, loading, locatedCount, mapRef, selected, onRef
           <h3>경보 목록</h3>
           <div className="person-list">
             {alerts.map((person) => (
-              <button key={person.id} className="person-row" type="button" onClick={() => onSelect(person)}>
-                <span className="pin-dot" />
+              <button
+                key={person.id}
+                className="person-row"
+                type="button"
+                onClick={() => onSelect(person)}
+              >
+                {person.photoUrl ? (
+                  <img
+                    className="person-row-photo"
+                    src={person.photoUrl}
+                    alt={`${person.name} 사진`}
+                  />
+                ) : (
+                  <div className="person-row-avatar">
+                    {person.name?.slice(0, 1) || "?"}
+                  </div>
+                )}
                 <span>
                   <strong>{person.name}</strong>
                   <small>{person.locationText || "위치 정보 미제공"}</small>
                 </span>
               </button>
             ))}
-            {!loading && alerts.length === 0 && <p className="empty-text">표시할 공식 데이터가 없습니다.</p>}
+            {!loading && alerts.length === 0 && (
+              <p className="empty-text">표시할 공식 데이터가 없습니다.</p>
+            )}
           </div>
         </div>
       </aside>
@@ -233,7 +296,13 @@ function MapView({ alerts, error, loading, locatedCount, mapRef, selected, onRef
 }
 
 function SearchView({ onSelect, setActiveTab }) {
-  const [form, setForm] = useState({ nm: "", occrAdres: "", sexdstnDscd: "", age1: "", age2: "" });
+  const [form, setForm] = useState({
+    nm: "",
+    occrAdres: "",
+    sexdstnDscd: "",
+    age1: "",
+    age2: "",
+  });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -242,7 +311,9 @@ function SearchView({ onSelect, setActiveTab }) {
     event.preventDefault();
     setLoading(true);
     setError("");
-    const params = new URLSearchParams(Object.entries(form).filter(([, value]) => value));
+    const params = new URLSearchParams(
+      Object.entries(form).filter(([, value]) => value),
+    );
     try {
       const data = await fetchJson(`/api/missing/search?${params.toString()}`);
       setResults(data.items || []);
@@ -263,15 +334,28 @@ function SearchView({ onSelect, setActiveTab }) {
       <form className="search-grid" onSubmit={submit}>
         <label>
           이름
-          <input value={form.nm} onChange={(event) => setForm({ ...form, nm: event.target.value })} />
+          <input
+            value={form.nm}
+            onChange={(event) => setForm({ ...form, nm: event.target.value })}
+          />
         </label>
         <label>
           발생 지역
-          <input value={form.occrAdres} onChange={(event) => setForm({ ...form, occrAdres: event.target.value })} />
+          <input
+            value={form.occrAdres}
+            onChange={(event) =>
+              setForm({ ...form, occrAdres: event.target.value })
+            }
+          />
         </label>
         <label>
           성별
-          <select value={form.sexdstnDscd} onChange={(event) => setForm({ ...form, sexdstnDscd: event.target.value })}>
+          <select
+            value={form.sexdstnDscd}
+            onChange={(event) =>
+              setForm({ ...form, sexdstnDscd: event.target.value })
+            }
+          >
             <option value="">전체</option>
             <option value="1">남자</option>
             <option value="2">여자</option>
@@ -279,14 +363,26 @@ function SearchView({ onSelect, setActiveTab }) {
         </label>
         <label>
           최소 나이
-          <input inputMode="numeric" value={form.age1} onChange={(event) => setForm({ ...form, age1: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={form.age1}
+            onChange={(event) => setForm({ ...form, age1: event.target.value })}
+          />
         </label>
         <label>
           최대 나이
-          <input inputMode="numeric" value={form.age2} onChange={(event) => setForm({ ...form, age2: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={form.age2}
+            onChange={(event) => setForm({ ...form, age2: event.target.value })}
+          />
         </label>
         <button className="primary-button" type="submit">
-          {loading ? <Loader2 className="spin" size={18} /> : <Search size={18} />}
+          {loading ? (
+            <Loader2 className="spin" size={18} />
+          ) : (
+            <Search size={18} />
+          )}
           검색
         </button>
       </form>
@@ -334,12 +430,17 @@ function StatsView({ stats, alerts }) {
           <div className="bar-row" key={item.region}>
             <span>{item.region}</span>
             <div className="bar-track">
-              <div className="bar-fill" style={{ width: `${(item.count / max) * 100}%` }} />
+              <div
+                className="bar-fill"
+                style={{ width: `${(item.count / max) * 100}%` }}
+              />
             </div>
             <strong>{item.count}</strong>
           </div>
         ))}
-        {stats.length === 0 && <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>}
+        {stats.length === 0 && (
+          <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>
+        )}
       </div>
     </section>
   );
@@ -353,7 +454,7 @@ function RegisterView() {
     missingAt: "",
     locationText: "",
     clothing: "",
-    features: ""
+    features: "",
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -366,10 +467,18 @@ function RegisterView() {
       const data = await fetchJson("/api/guardian-reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
       setMessage(data.message);
-      setForm({ guardianName: "", guardianPhone: "", missingName: "", missingAt: "", locationText: "", clothing: "", features: "" });
+      setForm({
+        guardianName: "",
+        guardianPhone: "",
+        missingName: "",
+        missingAt: "",
+        locationText: "",
+        clothing: "",
+        features: "",
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -395,11 +504,16 @@ function RegisterView() {
           ["missingAt", "실종 일시"],
           ["locationText", "마지막 목격 위치"],
           ["clothing", "인상착의"],
-          ["features", "신체 특징"]
+          ["features", "신체 특징"],
         ].map(([key, label]) => (
           <label key={key}>
             {label}
-            <input value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} />
+            <input
+              value={form[key]}
+              onChange={(event) =>
+                setForm({ ...form, [key]: event.target.value })
+              }
+            />
           </label>
         ))}
         <button className="primary-button" type="submit">
@@ -407,7 +521,12 @@ function RegisterView() {
           검토 요청 접수
         </button>
       </form>
-      {message && <div className="success-box"><CheckCircle2 size={18} />{message}</div>}
+      {message && (
+        <div className="success-box">
+          <CheckCircle2 size={18} />
+          {message}
+        </div>
+      )}
       {error && <div className="inline-error">{error}</div>}
     </section>
   );
@@ -418,13 +537,30 @@ function PersonDetail({ person }) {
     <article className="selected-card">
       <PersonSummary person={person} large />
       <dl className="detail-list">
-        <div><dt>실종 일시</dt><dd>{person.missingAt || "미제공"}</dd></div>
-        <div><dt>발생 위치</dt><dd>{person.locationText || "미제공"}</dd></div>
-        <div><dt>인상착의</dt><dd>{person.clothing}</dd></div>
-        <div><dt>특징</dt><dd>{person.features}</dd></div>
+        <div>
+          <dt>실종 일시</dt>
+          <dd>{person.missingAt || "미제공"}</dd>
+        </div>
+        <div>
+          <dt>발생 위치</dt>
+          <dd>{person.locationText || "미제공"}</dd>
+        </div>
+        <div>
+          <dt>인상착의</dt>
+          <dd>{person.clothing}</dd>
+        </div>
+        <div>
+          <dt>특징</dt>
+          <dd>{person.features}</dd>
+        </div>
       </dl>
       <div className="action-row">
-        <a className="primary-link" href={person.sourceUrl || "https://www.safe182.go.kr/"} target="_blank" rel="noreferrer">
+        <a
+          className="primary-link"
+          href={person.sourceUrl || "https://www.safe182.go.kr/"}
+          target="_blank"
+          rel="noreferrer"
+        >
           공식 상세 보기
         </a>
         <a className="call-link" href="tel:182">
@@ -440,11 +576,17 @@ function PersonSummary({ person, large = false }) {
   const initials = person.name?.slice(0, 1) || "?";
   return (
     <div className={large ? "person-summary large" : "person-summary"}>
-      {person.photoUrl ? <img src={person.photoUrl} alt={`${person.name} 사진`} /> : <div className="avatar">{initials}</div>}
+      {person.photoUrl ? (
+        <img src={person.photoUrl} alt={`${person.name} 사진`} />
+      ) : (
+        <div className="avatar">{initials}</div>
+      )}
       <div>
         <p>{person.status === "official" ? "공식 경보" : person.status}</p>
         <h3>{person.name}</h3>
-        <span>{person.gender} · 현재 {person.age}세</span>
+        <span>
+          {person.gender} · 현재 {person.age}세
+        </span>
       </div>
     </div>
   );
@@ -464,7 +606,9 @@ function SetupNotice() {
     <div className="setup-notice">
       <MapPin size={30} />
       <strong>카카오맵 JavaScript 키가 필요합니다.</strong>
-      <span>.env에 VITE_KAKAO_JAVASCRIPT_KEY를 설정하면 지도가 표시됩니다.</span>
+      <span>
+        .env에 VITE_KAKAO_JAVASCRIPT_KEY를 설정하면 지도가 표시됩니다.
+      </span>
     </div>
   );
 }
@@ -483,7 +627,9 @@ function EmptyPanel() {
     <div className="selected-card empty-card">
       <AlertTriangle size={24} />
       <strong>선택된 경보가 없습니다.</strong>
-      <span>공식 API 키를 설정한 뒤 데이터를 불러오면 상세 정보가 표시됩니다.</span>
+      <span>
+        공식 API 키를 설정한 뒤 데이터를 불러오면 상세 정보가 표시됩니다.
+      </span>
     </div>
   );
 }
