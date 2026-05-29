@@ -1,11 +1,4 @@
-# TODO
-
-- [x] Understand current App.jsx and styles.css state
-- [ ] Add date bucket logic (week/month/older/unknown)
-- [ ] Add map time filter state and filtered mapAlerts computation
-- [ ] Replace default Kakao markers with CustomOverlay circular profile markers
-- [ ] Apply border-color by missing date bucket
-- [ ] Keep marker click -> open existing detail modal
-- [ ] Add filter UI and legend in map toolbar
-- [ ] Add marker/toolbar/filter styles in styles.css
-- [ ] Verify no regression in modal/list/map interaction paths
+- [x] App.jsx 지도 탭 복귀 시 카카오맵 재표시/재중심 보정 로직 추가
+- [x] useKakaoMap effect 의존성 보강(selected 반영)
+- [x] 탭 전환 시 지도 relayout/center 보정 적용
+- [ ] 변경 사항 점검

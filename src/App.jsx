@@ -92,8 +92,7 @@ function createMarkerContent(person) {
   return wrapper;
 }
 
-function useKakaoMap(containerRef, people, selected, onSelect) {
-  const mapRef = useRef(null);
+function useKakaoMap(containerRef, instanceRef, people, selected, onSelect) {
   const markersRef = useRef([]);
 
   useEffect(() => {
@@ -110,16 +109,22 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
     document.head.appendChild(script);
 
     function createMap() {
-      if (!containerRef.current || mapRef.current) return;
-      mapRef.current = new window.kakao.maps.Map(containerRef.current, {
+      if (!containerRef.current || instanceRef.current) return;
+      instanceRef.current = new window.kakao.maps.Map(containerRef.current, {
         center: new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
         level: 6
       });
     }
-  }, [containerRef]);
+
+    return () => {
+      if (instanceRef.current) {
+        instanceRef.current = null;
+      }
+    };
+  }, [containerRef, instanceRef]);
 
   useEffect(() => {
-    if (!mapRef.current || !window.kakao?.maps) return;
+    if (!instanceRef.current || !window.kakao?.maps) return;
     markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
 
@@ -137,7 +142,7 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
         yAnchor: 0.5
       });
 
-      marker.setMap(mapRef.current);
+      marker.setMap(instanceRef.current);
       markersRef.current.push(marker);
       bounds.extend(position);
     });
@@ -159,21 +164,21 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
           }
         });
         nearbyBounds.extend(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
-        mapRef.current.setBounds(nearbyBounds);
+        instanceRef.current.setBounds(nearbyBounds);
       } else {
-        mapRef.current.setCenter(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
-        mapRef.current.setLevel(6);
+        instanceRef.current.setCenter(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
+        instanceRef.current.setLevel(6);
       }
     } else {
-      mapRef.current.setCenter(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
-      mapRef.current.setLevel(6);
+      instanceRef.current.setCenter(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
+      instanceRef.current.setLevel(6);
     }
-  }, [people, onSelect]);
+  }, [people, onSelect, selected, instanceRef]);
 
   useEffect(() => {
-    if (!mapRef.current || !selected?.lat || !selected?.lng || !window.kakao?.maps) return;
-    mapRef.current.panTo(new window.kakao.maps.LatLng(selected.lat, selected.lng));
-  }, [selected]);
+    if (!instanceRef.current || !selected?.lat || !selected?.lng || !window.kakao?.maps) return;
+    instanceRef.current.panTo(new window.kakao.maps.LatLng(selected.lat, selected.lng));
+  }, [selected, instanceRef]);
 }
 
 function App() {
@@ -185,7 +190,26 @@ function App() {
   const [error, setError] = useState("");
   const [stats, setStats] = useState([]);
   const [timeFilter, setTimeFilter] = useState("all");
-  const mapRef = useRef(null);
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (activeTab !== "map") return;
+    if (!mapInstanceRef.current || !window.kakao?.maps) return;
+
+    const mapInstance = mapInstanceRef.current;
+    const relayout = typeof mapInstance.relayout === "function" ? mapInstance.relayout.bind(mapInstance) : null;
+
+    window.requestAnimationFrame(() => {
+      relayout?.();
+
+      if (selected?.lat && selected?.lng) {
+        mapInstance.panTo(new window.kakao.maps.LatLng(selected.lat, selected.lng));
+      } else {
+        mapInstance.setCenter(new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng));
+      }
+    });
+  }, [activeTab, selected]);
 
 
   const loadAlerts = async () => {
@@ -221,7 +245,7 @@ function App() {
     return alerts.filter((person) => getMissingDateBucket(person.missingAt) === timeFilter);
   }, [alerts, timeFilter]);
 
-  useKakaoMap(mapRef, mapAlerts, selected, (person) => {
+  useKakaoMap(mapContainerRef, mapInstanceRef, mapAlerts, selected, (person) => {
     setSelected(person);
     setIsDetailOpen(true);
   });
@@ -266,13 +290,13 @@ function App() {
       </aside>
 
       <main className="workspace">
-        {activeTab === "map" && (
+        <div className={activeTab === "map" ? "view-pane active" : "view-pane hidden"}>
           <MapView
             alerts={mapAlerts}
             error={error}
             loading={loading}
             locatedCount={locatedCount}
-            mapRef={mapRef}
+            mapRef={mapContainerRef}
             selected={selected}
             isDetailOpen={isDetailOpen}
             onRefresh={loadAlerts}
@@ -284,10 +308,16 @@ function App() {
             }}
             onCloseDetail={() => setIsDetailOpen(false)}
           />
-        )}
-        {activeTab === "search" && <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />}
-        {activeTab === "stats" && <StatsView stats={stats} alerts={alerts} />}
-        {activeTab === "register" && <RegisterView />}
+        </div>
+        <div className={activeTab === "search" ? "view-pane active" : "view-pane hidden"}>
+          <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />
+        </div>
+        <div className={activeTab === "stats" ? "view-pane active" : "view-pane hidden"}>
+          <StatsView stats={stats} alerts={alerts} />
+        </div>
+        <div className={activeTab === "register" ? "view-pane active" : "view-pane hidden"}>
+          <RegisterView />
+        </div>
       </main>
     </div>
   );
