@@ -10,7 +10,6 @@ import { getOrSetCache } from "./lib/cache.js";
 import { enrichWithCoordinates } from "./lib/kakao.js";
 import { summarizeRegions } from "./lib/normalize.js";
 import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
-import numpy as numpy
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, "data");

@@ -104,7 +104,7 @@ npm install
 Windows PowerShell:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item env.example .env
 ```
 
 macOS 또는 Git Bash:
