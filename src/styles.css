@@ -32,6 +32,68 @@ a {
   display: none;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #f8fbfa 0%, #d5e5e1 100%);
+  padding: 20px;
+}
+
+.welcome-card {
+  width: min(100%, 420px);
+  padding: 40px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 48px rgba(20, 46, 42, 0.12);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.view-pane.active {
+  animation: fadeInContent 0.32s ease-out;
+}
+
+.welcome-brand {
+  display: block;
+  margin-bottom: 18px;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #16312c;
+}
+
+.welcome-card p {
+  margin: 0 0 28px;
+  color: #42514c;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -199,6 +261,7 @@ a {
   border-radius: 8px;
   text-decoration: none;
   white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .text-button,
@@ -213,6 +276,14 @@ a {
   border: 0;
   background: #d85c3a;
   color: #ffffff;
+}
+
+.primary-button:hover,
+.primary-link:hover,
+.text-button:hover,
+.ghost-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
 }
 
 .call-link {
