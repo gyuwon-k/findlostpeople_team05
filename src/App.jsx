@@ -96,36 +96,53 @@ function createMarkerContent(person) {
   return wrapper;
 }
 
-function useKakaoMap(containerRef, people, selected, onSelect) {
-  const mapRef = useRef(null);
+function useKakaoMap(
+  containerRef,
+  instanceRef,
+  people,
+  selected,
+  onSelect,
+  isVisible,
+) {
   const markersRef = useRef([]);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
-    if (!KAKAO_JS_KEY || !containerRef.current) return;
+    const container = containerRef.current;
+    if (!KAKAO_JS_KEY || !isVisible || !container) return;
+
+    function createMap(targetContainer) {
+      if (!targetContainer || instanceRef.current) return;
+
+      instanceRef.current = new window.kakao.maps.Map(targetContainer, {
+        center: new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
+        level: 6,
+      });
+
+      setMapReady(true);
+    }
 
     if (window.kakao?.maps) {
-      createMap();
+      createMap(container);
       return;
     }
 
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false&libraries=services,clusterer`;
     script.async = true;
-    script.onload = () => window.kakao.maps.load(createMap);
+    script.onload = () => {
+      window.kakao.maps.load(() => createMap(containerRef.current));
+    };
     document.head.appendChild(script);
 
-    function createMap() {
-      if (!containerRef.current || mapRef.current) return;
-
-      mapRef.current = new window.kakao.maps.Map(containerRef.current, {
-        center: new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
-        level: 6,
-      });
-    }
-  }, [containerRef]);
+    return () => {
+      markersRef.current.forEach((marker) => marker.setMap(null));
+      markersRef.current = [];
+    };
+  }, [containerRef, instanceRef, isVisible]);
 
   useEffect(() => {
-    if (!mapRef.current || !window.kakao?.maps) return;
+    if (!mapReady || !instanceRef.current || !window.kakao?.maps) return;
 
     markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
@@ -144,7 +161,7 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
         yAnchor: 0.5,
       });
 
-      marker.setMap(mapRef.current);
+      marker.setMap(instanceRef.current);
       markersRef.current.push(marker);
     });
 
@@ -172,25 +189,24 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
         nearbyBounds.extend(
           new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
         );
-
-        mapRef.current.setBounds(nearbyBounds);
+        instanceRef.current.setBounds(nearbyBounds);
       } else {
-        mapRef.current.setCenter(
+        instanceRef.current.setCenter(
           new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
         );
-        mapRef.current.setLevel(6);
+        instanceRef.current.setLevel(6);
       }
     } else {
-      mapRef.current.setCenter(
+      instanceRef.current.setCenter(
         new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
       );
-      mapRef.current.setLevel(6);
+      instanceRef.current.setLevel(6);
     }
-  }, [people, onSelect]);
+  }, [people, onSelect, mapReady, instanceRef]);
 
   useEffect(() => {
     if (
-      !mapRef.current ||
+      !instanceRef.current ||
       !selected?.lat ||
       !selected?.lng ||
       !window.kakao?.maps
@@ -198,10 +214,10 @@ function useKakaoMap(containerRef, people, selected, onSelect) {
       return;
     }
 
-    mapRef.current.panTo(
+    instanceRef.current.panTo(
       new window.kakao.maps.LatLng(selected.lat, selected.lng),
     );
-  }, [selected]);
+  }, [selected, instanceRef]);
 }
 
 function App() {
@@ -213,7 +229,44 @@ function App() {
   const [error, setError] = useState("");
   const [stats, setStats] = useState([]);
   const [timeFilter, setTimeFilter] = useState("all");
-  const mapRef = useRef(null);
+  const [hasEntered, setHasEntered] = useState(false);
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (activeTab !== "map") return;
+    if (!mapInstanceRef.current || !window.kakao?.maps) return;
+
+    const mapInstance = mapInstanceRef.current;
+    const relayout =
+      typeof mapInstance.relayout === "function"
+        ? mapInstance.relayout.bind(mapInstance)
+        : null;
+    const resize =
+      typeof window.kakao.maps?.event?.trigger === "function"
+        ? () => window.kakao.maps.event.trigger(mapInstance, "resize")
+        : null;
+
+    window.requestAnimationFrame(() => {
+      relayout?.();
+      resize?.();
+
+      if (selected?.lat && selected?.lng) {
+        mapInstance.panTo(
+          new window.kakao.maps.LatLng(selected.lat, selected.lng),
+        );
+      } else {
+        mapInstance.setCenter(
+          new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
+        );
+      }
+
+      setTimeout(() => {
+        relayout?.();
+        resize?.();
+      }, 100);
+    });
+  }, [activeTab, selected]);
 
   const loadAlerts = async () => {
     setLoading(true);
@@ -253,14 +306,25 @@ function App() {
     );
   }, [alerts, timeFilter]);
 
-  useKakaoMap(mapRef, mapAlerts, selected, (person) => {
-    setSelected(person);
-    setIsDetailOpen(true);
-  });
+  useKakaoMap(
+    mapContainerRef,
+    mapInstanceRef,
+    mapAlerts,
+    selected,
+    (person) => {
+      setSelected(person);
+      setIsDetailOpen(true);
+    },
+    hasEntered,
+  );
 
   const locatedCount = mapAlerts.filter(
     (person) => person.lat && person.lng,
   ).length;
+
+  if (!hasEntered) {
+    return <WelcomeView onContinue={() => setHasEntered(true)} />;
+  }
 
   return (
     <div className="app-shell">
@@ -301,13 +365,17 @@ function App() {
       </aside>
 
       <main className="workspace">
-        {activeTab === "map" && (
+        <div
+          className={
+            activeTab === "map" ? "view-pane active" : "view-pane hidden"
+          }
+        >
           <MapView
             alerts={mapAlerts}
             error={error}
             loading={loading}
             locatedCount={locatedCount}
-            mapRef={mapRef}
+            mapRef={mapContainerRef}
             selected={selected}
             isDetailOpen={isDetailOpen}
             onRefresh={loadAlerts}
@@ -319,15 +387,31 @@ function App() {
             }}
             onCloseDetail={() => setIsDetailOpen(false)}
           />
-        )}
+        </div>
 
-        {activeTab === "search" && (
+        <div
+          className={
+            activeTab === "search" ? "view-pane active" : "view-pane hidden"
+          }
+        >
           <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />
-        )}
+        </div>
 
-        {activeTab === "stats" && <StatsView stats={stats} alerts={alerts} />}
+        <div
+          className={
+            activeTab === "stats" ? "view-pane active" : "view-pane hidden"
+          }
+        >
+          <StatsView stats={stats} alerts={alerts} />
+        </div>
 
-        {activeTab === "register" && <RegisterView />}
+        <div
+          className={
+            activeTab === "register" ? "view-pane active" : "view-pane hidden"
+          }
+        >
+          <RegisterView />
+        </div>
       </main>
     </div>
   );
@@ -658,6 +742,20 @@ function StatsView({ stats, alerts }) {
         )}
       </div>
     </section>
+  );
+}
+
+function WelcomeView({ onContinue }) {
+  return (
+    <div className="welcome-screen">
+      <div className="welcome-card">
+        <strong className="welcome-brand">찾았다 요놈</strong>
+        <p>실종자 지도 서비스를 시작하려면 아래 버튼을 눌러주세요.</p>
+        <button className="primary-button" type="button" onClick={onContinue}>
+          로그인하고 시작하기
+        </button>
+      </div>
+    </div>
   );
 }
 
