@@ -357,11 +357,6 @@ function App() {
           })}
         </nav>
 
-        <div className="source-box">
-          <p>공식 API 연결</p>
-          <strong>{alerts.length > 0 ? "데이터 수신 중" : "설정 대기"}</strong>
-          <span>API 키는 서버 환경 변수로만 관리됩니다.</span>
-        </div>
       </aside>
 
       <main className="workspace">
@@ -431,115 +426,113 @@ function MapView({
   timeFilter,
   onChangeTimeFilter,
 }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   return (
-    <section className="map-layout" aria-labelledby="map-title">
-      <div className="map-area">
-        <div className="toolbar">
-          <div>
-            <h2 id="map-title">실시간 실종경보 지도</h2>
-            <p>최근 경보를 위치 기반으로 확인하고 상세 정보로 이동합니다.</p>
+    <section className="map-view">
+      <header className="map-topbar">
+        <div className="topbar-left">
+          <div className="brand-mark">
+            <ShieldCheck size={16} aria-hidden="true" />
           </div>
+          <span className="topbar-title">실종 정보 위치 지도</span>
+        </div>
 
-          <div className="toolbar-actions">
-            <label className="time-filter">
-              기간
-              <select
-                value={timeFilter}
-                onChange={(event) => onChangeTimeFilter(event.target.value)}
-              >
-                <option value="all">전체</option>
-                <option value="week">최근 1주</option>
-                <option value="month">최근 1개월</option>
-                <option value="older">1개월 초과</option>
-                <option value="unknown">날짜 미상</option>
-              </select>
-            </label>
+        <div className="search-box">
+          <Search size={18} aria-hidden="true" />
+          <input
+            type="search"
+            placeholder="지역명 또는 주소 검색"
+            aria-label="지역명 또는 주소 검색"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
+        </div>
 
-            <button
-              className="icon-button text-button"
-              type="button"
-              onClick={onRefresh}
+        <div className="topbar-filters">
+          <label className="time-filter">
+            <select
+              value={timeFilter}
+              onChange={(event) => onChangeTimeFilter(event.target.value)}
             >
-              {loading ? (
-                <Loader2 className="spin" size={18} />
-              ) : (
-                <FileSearch size={18} />
-              )}
-              새로고침
-            </button>
-          </div>
+              <option value="all">📅 전체 기간</option>
+              <option value="week">📅 최근 1주</option>
+              <option value="month">📅 최근 1개월</option>
+              <option value="older">📅 1개월 초과</option>
+              <option value="unknown">📅 날짜 미상</option>
+            </select>
+          </label>
+
+          <label className="status-filter">
+            <select value="all" onChange={() => {}}>
+              <option value="all">✓ 전체</option>
+            </select>
+          </label>
         </div>
+      </header>
 
-        <div className="marker-legend">
-          <span>
-            <i className="dot week" /> 최근 1주
-          </span>
-          <span>
-            <i className="dot month" /> 최근 1개월
-          </span>
-          <span>
-            <i className="dot older" /> 1개월 초과
-          </span>
-          <span>
-            <i className="dot unknown" /> 날짜 미상
-          </span>
-        </div>
+      <div className="map-layout">
+        <div className="map-area">
+          <div className="map-canvas-wrap">
+            {KAKAO_JS_KEY ? (
+              <div ref={mapRef} className="map-canvas" aria-label="카카오맵" />
+            ) : (
+              <SetupNotice />
+            )}
 
-        <div className="status-row">
-          <Metric label="수신 경보" value={alerts.length} />
-          <Metric label="좌표 확인" value={locatedCount} />
-          <Metric label="공식 연결" value="Safe182" />
-        </div>
+            {loading && (
+              <OverlayNotice
+                icon={Loader2}
+                text="안전Dream 데이터를 불러오는 중입니다."
+                spinning
+              />
+            )}
 
-        <div className="map-canvas-wrap">
-          {KAKAO_JS_KEY ? (
-            <div ref={mapRef} className="map-canvas" aria-label="카카오맵" />
-          ) : (
-            <SetupNotice />
-          )}
+            {error && (
+              <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />
+            )}
 
-          {loading && (
-            <OverlayNotice
-              icon={Loader2}
-              text="안전Dream 데이터를 불러오는 중입니다."
-              spinning
-            />
-          )}
-
-          {error && (
-            <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />
-          )}
-
-          {selected && isDetailOpen && (
-            <div
-              className="detail-modal-backdrop"
-              role="presentation"
-              onClick={onCloseDetail}
-            >
-              <article
-                className="detail-modal-card"
-                role="dialog"
-                aria-modal="true"
-                aria-label="실종자 상세 정보"
-                onClick={(event) => event.stopPropagation()}
+            {selected && isDetailOpen && (
+              <div
+                className="detail-modal-backdrop"
+                role="presentation"
+                onClick={onCloseDetail}
               >
-                <button
-                  className="detail-modal-close"
-                  type="button"
-                  onClick={onCloseDetail}
-                  aria-label="상세 닫기"
+                <article
+                  className="detail-modal-card"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="실종자 상세 정보"
+                  onClick={(event) => event.stopPropagation()}
                 >
-                  ×
-                </button>
+                  <button
+                    className="detail-modal-close"
+                    type="button"
+                    onClick={onCloseDetail}
+                    aria-label="상세 닫기"
+                  >
+                    ×
+                  </button>
 
-                <PersonDetail person={selected} />
-              </article>
-            </div>
-          )}
+                  <PersonDetail person={selected} />
+                </article>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <aside className="detail-panel">
+        <aside className="detail-panel">
+        {selected ? (
+          <div className="selected-detail-card">
+            <div className="detail-card-heading">
+              <span>실종정보</span>
+              <strong>상세 카드 확인</strong>
+            </div>
+            <PersonDetail person={selected} />
+          </div>
+        ) : null}
+
         <div className="list-panel">
           <h3>경보 목록</h3>
 
@@ -576,7 +569,8 @@ function MapView({
           </div>
         </div>
       </aside>
-    </section>
+    </div>
+  </section>
   );
 }
 
@@ -614,93 +608,151 @@ function SearchView({ onSelect, setActiveTab }) {
   };
 
   return (
-    <section className="content-view" aria-labelledby="search-title">
-      <div className="section-heading">
-        <h2 id="search-title">실종자 검색</h2>
-        <p>안전Dream 검색 API를 조건별로 조회합니다.</p>
+    <section className="content-view search-layout">
+      <div className="search-wrapper">
+        <div className="search-header">
+          <h2 id="search-title">검색 조건</h2>
+        </div>
+
+        <form className="search-grid" onSubmit={submit}>
+          <label>
+            이름
+            <input
+              placeholder="이름을 입력하세요"
+              value={form.nm}
+              onChange={(event) => setForm({ ...form, nm: event.target.value })}
+            />
+          </label>
+
+          <label>
+            지역
+            <input
+              placeholder="지역을 선택하세요"
+              value={form.occrAdres}
+              onChange={(event) =>
+                setForm({ ...form, occrAdres: event.target.value })
+              }
+            />
+          </label>
+
+          <label>
+            성별
+            <select
+              value={form.sexdstnDscd}
+              onChange={(event) =>
+                setForm({ ...form, sexdstnDscd: event.target.value })
+              }
+            >
+              <option value="">성별을 선택하세요</option>
+              <option value="1">남자</option>
+              <option value="2">여자</option>
+            </select>
+          </label>
+
+          <label>
+            최소 나이
+            <input
+              inputMode="numeric"
+              placeholder="최소 나이"
+              value={form.age1}
+              onChange={(event) => setForm({ ...form, age1: event.target.value })}
+            />
+          </label>
+
+          <label>
+            최대 나이
+            <input
+              inputMode="numeric"
+              placeholder="최대 나이"
+              value={form.age2}
+              onChange={(event) => setForm({ ...form, age2: event.target.value })}
+            />
+          </label>
+
+          <button className="primary-button" type="submit">
+            {loading ? (
+              <Loader2 className="spin" size={18} />
+            ) : (
+              <Search size={18} />
+            )}
+            검색하기
+          </button>
+        </form>
+
+        <button
+          className="reset-button"
+          type="button"
+          onClick={() => {
+            setForm({ nm: "", occrAdres: "", sexdstnDscd: "", age1: "", age2: "" });
+            setResults([]);
+            setError("");
+          }}
+        >
+          <span>↻</span> 초기화
+        </button>
       </div>
 
-      <form className="search-grid" onSubmit={submit}>
-        <label>
-          이름
-          <input
-            value={form.nm}
-            onChange={(event) => setForm({ ...form, nm: event.target.value })}
-          />
-        </label>
+      <div className="results-wrapper">
+        <div className="results-header">
+          <h2>검색 결과</h2>
+          <span className="result-count">{results.length}건</span>
+        </div>
 
-        <label>
-          발생 지역
-          <input
-            value={form.occrAdres}
-            onChange={(event) =>
-              setForm({ ...form, occrAdres: event.target.value })
-            }
-          />
-        </label>
+        {error && <div className="inline-error">{error}</div>}
 
-        <label>
-          성별
-          <select
-            value={form.sexdstnDscd}
-            onChange={(event) =>
-              setForm({ ...form, sexdstnDscd: event.target.value })
-            }
-          >
-            <option value="">전체</option>
-            <option value="1">남자</option>
-            <option value="2">여자</option>
-          </select>
-        </label>
+        <div className="results-grid">
+          {results.map((person) => (
+            <article key={person.id} className="result-card">
+              <div className="card-left">
+                {person.photoUrl ? (
+                  <img
+                    src={person.photoUrl}
+                    alt={`${person.name} 사진`}
+                    className="card-photo"
+                  />
+                ) : (
+                  <div className="card-avatar">{person.name?.slice(0, 1) || "?"}</div>
+                )}
+              </div>
 
-        <label>
-          최소 나이
-          <input
-            inputMode="numeric"
-            value={form.age1}
-            onChange={(event) => setForm({ ...form, age1: event.target.value })}
-          />
-        </label>
+              <div className="card-center">
+                <div className="card-badge">
+                  <span className="badge-icon">!</span>
+                  <span className="badge-text">실종정보</span>
+                </div>
 
-        <label>
-          최대 나이
-          <input
-            inputMode="numeric"
-            value={form.age2}
-            onChange={(event) => setForm({ ...form, age2: event.target.value })}
-          />
-        </label>
+                <PersonSummary person={person} />
+              </div>
 
-        <button className="primary-button" type="submit">
-          {loading ? (
-            <Loader2 className="spin" size={18} />
-          ) : (
-            <Search size={18} />
-          )}
-          검색
-        </button>
-      </form>
+              <div className="card-right">
+                <button
+                  className="card-action-btn"
+                  type="button"
+                  onClick={() => {}}
+                >
+                  <FileSearch size={16} />
+                  상세 정보 보기
+                </button>
 
-      {error && <div className="inline-error">{error}</div>}
+                <button
+                  className="card-action-btn"
+                  type="button"
+                  onClick={() => {
+                    onSelect(person);
+                    setActiveTab("map");
+                  }}
+                >
+                  <MapPin size={16} />
+                  지도에서 보기
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
 
-      <div className="results-grid">
-        {results.map((person) => (
-          <article key={person.id} className="result-card">
-            <PersonSummary person={person} />
-
-            <button
-              className="ghost-button"
-              type="button"
-              onClick={() => {
-                onSelect(person);
-                setActiveTab("map");
-              }}
-            >
-              <MapPin size={16} />
-              지도에서 보기
-            </button>
-          </article>
-        ))}
+        {!loading && results.length === 0 && (
+          <p className="empty-text">검색 결과가 없습니다.</p>
+        )}
       </div>
     </section>
   );
