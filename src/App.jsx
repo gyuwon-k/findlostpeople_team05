@@ -2,14 +2,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
+  CalendarClock,
   CheckCircle2,
   FileSearch,
   Loader2,
   MapPin,
+  MapPinned,
   Phone,
+  Ruler,
   Search,
   ShieldCheck,
+  Shirt,
+  Sparkles,
   UserRoundPlus,
+  Weight,
 } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
@@ -20,9 +26,258 @@ const ALERT_ROW_SIZE = 100;
 const tabs = [
   { id: "map", label: "실시간 지도", icon: MapPin },
   { id: "search", label: "실종자 검색", icon: Search },
-  { id: "stats", label: "지역 분석", icon: BarChart3 },
+  { id: "stats", label: "통계", icon: BarChart3 },
   { id: "register", label: "보호자 등록", icon: UserRoundPlus },
 ];
+
+const statsSections = [
+  { id: "region", label: "지역 분석" },
+  { id: "time", label: "최근 발생 추이" },
+  { id: "demographic", label: "성별·연령 분석" },
+];
+
+const regionGroups = {
+  서울특별시: [
+    "종로구",
+    "중구",
+    "용산구",
+    "성동구",
+    "광진구",
+    "동대문구",
+    "중랑구",
+    "성북구",
+    "강북구",
+    "도봉구",
+    "노원구",
+    "은평구",
+    "서대문구",
+    "마포구",
+    "양천구",
+    "강서구",
+    "구로구",
+    "금천구",
+    "영등포구",
+    "동작구",
+    "관악구",
+    "서초구",
+    "강남구",
+    "송파구",
+    "강동구",
+  ],
+  부산광역시: [
+    "중구",
+    "서구",
+    "동구",
+    "영도구",
+    "부산진구",
+    "동래구",
+    "남구",
+    "북구",
+    "해운대구",
+    "사하구",
+    "금정구",
+    "강서구",
+    "연제구",
+    "수영구",
+    "사상구",
+    "기장군",
+  ],
+  대구광역시: [
+    "중구",
+    "동구",
+    "서구",
+    "남구",
+    "북구",
+    "수성구",
+    "달서구",
+    "달성군",
+    "군위군",
+  ],
+  인천광역시: [
+    "중구",
+    "동구",
+    "미추홀구",
+    "연수구",
+    "남동구",
+    "부평구",
+    "계양구",
+    "서구",
+    "강화군",
+    "옹진군",
+  ],
+  광주광역시: ["동구", "서구", "남구", "북구", "광산구"],
+  대전광역시: ["동구", "중구", "서구", "유성구", "대덕구"],
+  울산광역시: ["중구", "남구", "동구", "북구", "울주군"],
+  세종특별자치시: [],
+  경기도: [
+    "수원시",
+    "성남시",
+    "의정부시",
+    "안양시",
+    "부천시",
+    "광명시",
+    "평택시",
+    "동두천시",
+    "안산시",
+    "고양시",
+    "과천시",
+    "구리시",
+    "남양주시",
+    "오산시",
+    "시흥시",
+    "군포시",
+    "의왕시",
+    "하남시",
+    "용인시",
+    "파주시",
+    "이천시",
+    "안성시",
+    "김포시",
+    "화성시",
+    "광주시",
+    "양주시",
+    "포천시",
+    "여주시",
+    "연천군",
+    "가평군",
+    "양평군",
+  ],
+  강원특별자치도: [
+    "춘천시",
+    "원주시",
+    "강릉시",
+    "동해시",
+    "태백시",
+    "속초시",
+    "삼척시",
+    "홍천군",
+    "횡성군",
+    "영월군",
+    "평창군",
+    "정선군",
+    "철원군",
+    "화천군",
+    "양구군",
+    "인제군",
+    "고성군",
+    "양양군",
+  ],
+  충청북도: [
+    "청주시",
+    "충주시",
+    "제천시",
+    "보은군",
+    "옥천군",
+    "영동군",
+    "증평군",
+    "진천군",
+    "괴산군",
+    "음성군",
+    "단양군",
+  ],
+  충청남도: [
+    "천안시",
+    "공주시",
+    "보령시",
+    "아산시",
+    "서산시",
+    "논산시",
+    "계룡시",
+    "당진시",
+    "금산군",
+    "부여군",
+    "서천군",
+    "청양군",
+    "홍성군",
+    "예산군",
+    "태안군",
+  ],
+  전북특별자치도: [
+    "전주시",
+    "군산시",
+    "익산시",
+    "정읍시",
+    "남원시",
+    "김제시",
+    "완주군",
+    "진안군",
+    "무주군",
+    "장수군",
+    "임실군",
+    "순창군",
+    "고창군",
+    "부안군",
+  ],
+  전라남도: [
+    "목포시",
+    "여수시",
+    "순천시",
+    "나주시",
+    "광양시",
+    "담양군",
+    "곡성군",
+    "구례군",
+    "고흥군",
+    "보성군",
+    "화순군",
+    "장흥군",
+    "강진군",
+    "해남군",
+    "영암군",
+    "무안군",
+    "함평군",
+    "영광군",
+    "장성군",
+    "완도군",
+    "진도군",
+    "신안군",
+  ],
+  경상북도: [
+    "포항시",
+    "경주시",
+    "김천시",
+    "안동시",
+    "구미시",
+    "영주시",
+    "영천시",
+    "상주시",
+    "문경시",
+    "경산시",
+    "의성군",
+    "청송군",
+    "영양군",
+    "영덕군",
+    "청도군",
+    "고령군",
+    "성주군",
+    "칠곡군",
+    "예천군",
+    "봉화군",
+    "울진군",
+    "울릉군",
+  ],
+  경상남도: [
+    "창원시",
+    "진주시",
+    "통영시",
+    "사천시",
+    "김해시",
+    "밀양시",
+    "거제시",
+    "양산시",
+    "의령군",
+    "함안군",
+    "창녕군",
+    "고성군",
+    "남해군",
+    "하동군",
+    "산청군",
+    "함양군",
+    "거창군",
+    "합천군",
+  ],
+  제주특별자치도: ["제주시", "서귀포시"],
+};
 
 function fetchJson(path, options) {
   return fetch(`${API_BASE}${path}`, options).then(async (response) => {
@@ -72,6 +327,28 @@ function getMarkerBorderClass(missingAt) {
   if (bucket === "month") return "border-month";
   if (bucket === "older") return "border-older";
   return "border-unknown";
+}
+
+function getUrgencyLabel(missingAt) {
+  const bucket = getMissingDateBucket(missingAt);
+  if (bucket === "week") return "최근 7일";
+  if (bucket === "month") return "1개월 이내";
+  if (bucket === "older") return "장기";
+  return "날짜 미상";
+}
+
+function getUrgencyClass(missingAt) {
+  return `urgency-${getMissingDateBucket(missingAt)}`;
+}
+
+function formatShortDate(value) {
+  const parsed = parseMissingDate(value);
+  if (!parsed) return value || "날짜 미상";
+
+  const yyyy = parsed.getFullYear();
+  const mm = String(parsed.getMonth() + 1).padStart(2, "0");
+  const dd = String(parsed.getDate()).padStart(2, "0");
+  return `${yyyy}.${mm}.${dd}`;
 }
 
 function createMarkerContent(person) {
@@ -222,6 +499,8 @@ function useKakaoMap(
 
 function App() {
   const [activeTab, setActiveTab] = useState("map");
+  const [activeStatsSection, setActiveStatsSection] = useState("region");
+  const [listSort, setListSort] = useState("recent");
   const [alerts, setAlerts] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -306,15 +585,49 @@ function App() {
     );
   }, [alerts, timeFilter]);
 
+  const toggleSelectedPerson = (person) => {
+    setSelected((current) => {
+      const isSamePerson = current?.id === person.id;
+      setIsDetailOpen(!isSamePerson);
+      return isSamePerson ? null : person;
+    });
+  };
+
+  const sortedSidebarAlerts = useMemo(() => {
+    const items = [...alerts];
+
+    return items.sort((a, b) => {
+      if (listSort === "age") {
+        const ageA = Number.parseInt(a.age, 10);
+        const ageB = Number.parseInt(b.age, 10);
+        return (
+          (Number.isFinite(ageB) ? ageB : -1) -
+          (Number.isFinite(ageA) ? ageA : -1)
+        );
+      }
+
+      if (listSort === "region") {
+        return (a.locationText || "").localeCompare(b.locationText || "", "ko");
+      }
+
+      if (listSort === "located") {
+        const locatedA = a.lat && a.lng ? 1 : 0;
+        const locatedB = b.lat && b.lng ? 1 : 0;
+        return locatedB - locatedA;
+      }
+
+      const dateA = parseMissingDate(a.missingAt)?.getTime() || 0;
+      const dateB = parseMissingDate(b.missingAt)?.getTime() || 0;
+      return dateB - dateA;
+    });
+  }, [alerts, listSort]);
+
   useKakaoMap(
     mapContainerRef,
     mapInstanceRef,
     mapAlerts,
     selected,
-    (person) => {
-      setSelected(person);
-      setIsDetailOpen(true);
-    },
+    toggleSelectedPerson,
     hasEntered,
   );
 
@@ -343,6 +656,44 @@ function App() {
           {tabs.map((tab) => {
             const Icon = tab.icon;
 
+            if (tab.id === "stats") {
+              return (
+                <div className="nav-group" key={tab.id}>
+                  <button
+                    className={activeTab === tab.id ? "tab active" : "tab"}
+                    type="button"
+                    aria-expanded={activeTab === "stats"}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{tab.label}</span>
+                  </button>
+
+                  {activeTab === "stats" && (
+                    <div className="tab-child-list" aria-label="통계 하위 메뉴">
+                      {statsSections.map((section) => (
+                        <button
+                          key={section.id}
+                          className={
+                            activeStatsSection === section.id
+                              ? "tab-child active"
+                              : "tab-child"
+                          }
+                          type="button"
+                          onClick={() => {
+                            setActiveTab("stats");
+                            setActiveStatsSection(section.id);
+                          }}
+                        >
+                          {section.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <button
                 key={tab.id}
@@ -357,6 +708,19 @@ function App() {
           })}
         </nav>
 
+        <div className="sidebar-spacer" />
+
+        <AlertListPanel
+          alerts={alerts}
+          loading={loading}
+          sortedAlerts={sortedSidebarAlerts}
+          listSort={listSort}
+          onChangeSort={setListSort}
+          onSelect={(person) => {
+            toggleSelectedPerson(person);
+            setActiveTab("map");
+          }}
+        />
       </aside>
 
       <main className="workspace">
@@ -371,14 +735,14 @@ function App() {
             loading={loading}
             locatedCount={locatedCount}
             mapRef={mapContainerRef}
+            mapInstanceRef={mapInstanceRef}
             selected={selected}
             isDetailOpen={isDetailOpen}
             onRefresh={loadAlerts}
             timeFilter={timeFilter}
             onChangeTimeFilter={setTimeFilter}
             onSelect={(person) => {
-              setSelected(person);
-              setIsDetailOpen(Boolean(person));
+              toggleSelectedPerson(person);
             }}
             onCloseDetail={() => setIsDetailOpen(false)}
           />
@@ -397,7 +761,11 @@ function App() {
             activeTab === "stats" ? "view-pane active" : "view-pane hidden"
           }
         >
-          <StatsView stats={stats} alerts={alerts} />
+          <StatsView
+            activeSection={activeStatsSection}
+            stats={stats}
+            alerts={alerts}
+          />
         </div>
 
         <div
@@ -418,6 +786,7 @@ function MapView({
   loading,
   locatedCount,
   mapRef,
+  mapInstanceRef,
   selected,
   isDetailOpen,
   onRefresh,
@@ -427,7 +796,57 @@ function MapView({
   onChangeTimeFilter,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [areaSearchError, setAreaSearchError] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const moveMapToSearchResult = (lat, lng) => {
+    if (!mapInstanceRef.current || !window.kakao?.maps) return;
+
+    const position = new window.kakao.maps.LatLng(lat, lng);
+    mapInstanceRef.current.panTo(position);
+    mapInstanceRef.current.setLevel(9);
+  };
+
+  const submitAreaSearch = (event) => {
+    event.preventDefault();
+    const keyword = searchQuery.trim();
+
+    if (!keyword || !mapInstanceRef.current || !window.kakao?.maps?.services) {
+      return;
+    }
+
+    setAreaSearchError("");
+
+    const geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.addressSearch(keyword, (addressResults, addressStatus) => {
+      if (
+        addressStatus === window.kakao.maps.services.Status.OK &&
+        addressResults[0]
+      ) {
+        moveMapToSearchResult(
+          Number(addressResults[0].y),
+          Number(addressResults[0].x),
+        );
+        return;
+      }
+
+      const places = new window.kakao.maps.services.Places();
+      places.keywordSearch(keyword, (keywordResults, keywordStatus) => {
+        if (
+          keywordStatus === window.kakao.maps.services.Status.OK &&
+          keywordResults[0]
+        ) {
+          moveMapToSearchResult(
+            Number(keywordResults[0].y),
+            Number(keywordResults[0].x),
+          );
+          return;
+        }
+
+        setAreaSearchError("검색한 지역을 지도에서 찾지 못했습니다.");
+      });
+    });
+  };
 
   return (
     <section className="map-view">
@@ -439,7 +858,7 @@ function MapView({
           <span className="topbar-title">실종 정보 위치 지도</span>
         </div>
 
-        <div className="search-box">
+        <form className="search-box map-search-box" onSubmit={submitAreaSearch}>
           <Search size={18} aria-hidden="true" />
           <input
             type="search"
@@ -448,7 +867,10 @@ function MapView({
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
           />
-        </div>
+          <button className="map-search-button" type="submit" aria-label="지도에서 지역 검색">
+            <Search size={16} aria-hidden="true" />
+          </button>
+        </form>
 
         <div className="topbar-filters">
           <label className="time-filter">
@@ -472,7 +894,7 @@ function MapView({
         </div>
       </header>
 
-      <div className="map-layout">
+      <div className={selected ? "map-layout has-detail" : "map-layout"}>
         <div className="map-area">
           <div className="map-canvas-wrap">
             {KAKAO_JS_KEY ? (
@@ -493,37 +915,19 @@ function MapView({
               <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />
             )}
 
-            {selected && isDetailOpen && (
-              <div
-                className="detail-modal-backdrop"
-                role="presentation"
-                onClick={onCloseDetail}
-              >
-                <article
-                  className="detail-modal-card"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-label="실종자 상세 정보"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <button
-                    className="detail-modal-close"
-                    type="button"
-                    onClick={onCloseDetail}
-                    aria-label="상세 닫기"
-                  >
-                    ×
-                  </button>
-
-                  <PersonDetail person={selected} />
-                </article>
-              </div>
+            {areaSearchError && (
+              <OverlayNotice
+                icon={AlertTriangle}
+                text={areaSearchError}
+                tone="danger"
+              />
             )}
+
           </div>
         </div>
 
-        <aside className="detail-panel">
         {selected ? (
+          <aside className="detail-panel">
           <div className="selected-detail-card">
             <div className="detail-card-heading">
               <span>실종정보</span>
@@ -531,46 +935,88 @@ function MapView({
             </div>
             <PersonDetail person={selected} />
           </div>
+          </aside>
         ) : null}
-
-        <div className="list-panel">
-          <h3>경보 목록</h3>
-
-          <div className="person-list">
-            {alerts.map((person) => (
-              <button
-                key={person.id}
-                className="person-row"
-                type="button"
-                onClick={() => onSelect(person)}
-              >
-                {person.photoUrl ? (
-                  <img
-                    className="person-row-photo"
-                    src={person.photoUrl}
-                    alt={`${person.name} 사진`}
-                  />
-                ) : (
-                  <div className="person-row-avatar">
-                    {person.name?.slice(0, 1) || "?"}
-                  </div>
-                )}
-
-                <span>
-                  <strong>{person.name}</strong>
-                  <small>{person.locationText || "위치 정보 미제공"}</small>
-                </span>
-              </button>
-            ))}
-
-            {!loading && alerts.length === 0 && (
-              <p className="empty-text">표시할 공식 데이터가 없습니다.</p>
-            )}
-          </div>
-        </div>
-      </aside>
     </div>
   </section>
+  );
+}
+
+function AlertListPanel({
+  alerts,
+  loading,
+  sortedAlerts,
+  listSort,
+  onChangeSort,
+  onSelect,
+}) {
+  return (
+    <aside className="list-panel sidebar-list-panel">
+      <div className="list-panel-heading">
+        <div>
+          <h3>경보 목록</h3>
+          <p>{alerts.length}건의 실종 경보</p>
+        </div>
+
+        <label className="list-sort">
+          <span>정렬</span>
+          <select
+            value={listSort}
+            onChange={(event) => onChangeSort(event.target.value)}
+          >
+            <option value="recent">최신순</option>
+            <option value="age">나이순</option>
+            <option value="region">지역순</option>
+            <option value="located">위치 있음 먼저</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="person-list">
+        {sortedAlerts.map((person) => (
+          <button
+            key={person.id}
+            className="person-row"
+            type="button"
+            onClick={() => onSelect(person)}
+          >
+            {person.photoUrl ? (
+              <img
+                className="person-row-photo"
+                src={person.photoUrl}
+                alt={`${person.name} 사진`}
+              />
+            ) : (
+              <div className="person-row-avatar">
+                {person.name?.slice(0, 1) || "?"}
+              </div>
+            )}
+
+            <span>
+              <span className="person-row-title">
+                <strong>{person.name}</strong>
+                <em className={`urgency-badge ${getUrgencyClass(person.missingAt)}`}>
+                  {getUrgencyLabel(person.missingAt)}
+                </em>
+              </span>
+              <small>{person.gender} · 현재 {person.age}세</small>
+              <small>실종일 {formatShortDate(person.missingAt)}</small>
+              <small>{person.locationText || "위치 정보 미제공"}</small>
+              <span className="person-row-tags">
+                <em>{person.lat && person.lng ? "위치 확인됨" : "위치 미확인"}</em>
+                {person.clothing && person.clothing !== "착의 정보 미제공" && (
+                  <em>{person.clothing}</em>
+                )}
+              </span>
+            </span>
+          </button>
+        ))}
+
+        {!loading && alerts.length === 0 && (
+          <p className="empty-text">표시할 공식 데이터가 없습니다.</p>
+        )}
+      </div>
+    </aside>
   );
 }
 
@@ -609,9 +1055,12 @@ function SearchView({ onSelect, setActiveTab }) {
 
   return (
     <section className="content-view search-layout">
-      <div className="search-wrapper">
+        <div className="search-wrapper">
         <div className="search-header">
-          <h2 id="search-title">검색 조건</h2>
+          <h2 id="search-title">
+            <Search size={26} aria-hidden="true" />
+            검색 조건
+          </h2>
         </div>
 
         <form className="search-grid" onSubmit={submit}>
@@ -626,13 +1075,27 @@ function SearchView({ onSelect, setActiveTab }) {
 
           <label>
             지역
-            <input
-              placeholder="지역을 선택하세요"
+            <select
               value={form.occrAdres}
               onChange={(event) =>
                 setForm({ ...form, occrAdres: event.target.value })
               }
-            />
+            >
+              <option value="">지역을 선택하세요</option>
+              {Object.entries(regionGroups).map(([province, districts]) => (
+                <optgroup key={province} label={province}>
+                  <option value={province}>{province} 전체</option>
+                  {districts.map((district) => (
+                    <option
+                      key={`${province}-${district}`}
+                      value={district}
+                    >
+                      {district}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </label>
 
           <label>
@@ -721,7 +1184,48 @@ function SearchView({ onSelect, setActiveTab }) {
                   <span className="badge-text">실종정보</span>
                 </div>
 
-                <PersonSummary person={person} />
+                <div className="search-result-name">
+                  <h3>{person.name}</h3>
+                  <span className={`urgency-badge ${getUrgencyClass(person.missingAt)}`}>
+                    {getUrgencyLabel(person.missingAt)}
+                  </span>
+                </div>
+
+                <dl className="result-detail-grid">
+                  <div>
+                    <dt>
+                      <MapPinned size={16} aria-hidden="true" />
+                      발생 지역
+                    </dt>
+                    <dd>{person.locationText || "위치 정보 미제공"}</dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      <CalendarClock size={16} aria-hidden="true" />
+                      발생 일시
+                    </dt>
+                    <dd>{person.missingAt || "날짜 미상"}</dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      <UserRoundPlus size={16} aria-hidden="true" />
+                      성별 / 나이
+                    </dt>
+                    <dd>
+                      {person.gender} / 현재 {person.age}세
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      <Shirt size={16} aria-hidden="true" />
+                      특징
+                    </dt>
+                    <dd>{person.clothing || person.features || "특징 정보 미제공"}</dd>
+                  </div>
+                </dl>
               </div>
 
               <div className="card-right">
@@ -758,43 +1262,235 @@ function SearchView({ onSelect, setActiveTab }) {
   );
 }
 
-function StatsView({ stats, alerts }) {
+function StatsView({ activeSection, stats, alerts }) {
   const max = Math.max(1, ...stats.map((item) => item.count));
   const topRegion = stats[0]?.region || "집계 대기";
+  const activeStatsTitle =
+    statsSections.find((section) => section.id === activeSection)?.label ||
+    "지역 분석";
+  const timeStats = getTimeStats(alerts);
+  const demographicStats = getDemographicStats(alerts);
 
   return (
     <section className="content-view" aria-labelledby="stats-title">
       <div className="section-heading">
-        <h2 id="stats-title">지역별 실종자 분포</h2>
-        <p>공식 API 조회 결과를 지역 단위로 집계합니다.</p>
+        <h2 id="stats-title">통계</h2>
+        <p>실종자 데이터를 여러 기준으로 분석합니다.</p>
       </div>
 
-      <div className="status-row wide">
-        <Metric label="분석 대상" value={alerts.length} />
-        <Metric label="상위 지역" value={topRegion} />
-        <Metric label="지역 수" value={stats.length} />
-      </div>
+      <div className="stats-panel">
+        <div className="stats-panel-heading">
+          <h3>{activeStatsTitle}</h3>
+          <p>{getStatsDescription(activeSection)}</p>
+        </div>
 
-      <div className="chart-list">
-        {stats.map((item) => (
-          <div className="bar-row" key={item.region}>
-            <span>{item.region}</span>
-            <div className="bar-track">
-              <div
-                className="bar-fill"
-                style={{ width: `${(item.count / max) * 100}%` }}
-              />
+        {activeSection === "region" && (
+          <>
+            <div className="status-row wide">
+              <Metric label="분석 대상" value={alerts.length} />
+              <Metric label="상위 지역" value={topRegion} />
+              <Metric label="지역 수" value={stats.length} />
             </div>
-            <strong>{item.count}</strong>
-          </div>
-        ))}
 
-        {stats.length === 0 && (
-          <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>
+            <div className="chart-list">
+              {stats.map((item) => (
+                <div className="bar-row" key={item.region}>
+                  <span>{item.region}</span>
+                  <div className="bar-track">
+                    <div
+                      className="bar-fill"
+                      style={{ width: `${(item.count / max) * 100}%` }}
+                    />
+                  </div>
+                  <strong>{item.count}</strong>
+                </div>
+              ))}
+
+              {stats.length === 0 && (
+                <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>
+              )}
+            </div>
+          </>
         )}
+
+        {activeSection === "time" && (
+          <>
+            <div className="status-row wide">
+              <Metric label="최근 7일" value={timeStats.week} />
+              <Metric label="1개월 이내" value={timeStats.month} />
+              <Metric label="1년 이내" value={timeStats.year} />
+            </div>
+
+            <StatsBars
+              max={timeStats.max}
+              rows={[
+                ["최근 7일", timeStats.week],
+                ["1개월 이내", timeStats.month],
+                ["1년 이내", timeStats.year],
+                ["3년 이내", timeStats.threeYears],
+                ["5년 이내", timeStats.fiveYears],
+                ["10년 이내", timeStats.tenYears],
+                ["10년 초과", timeStats.overTenYears],
+                ["날짜 미상", timeStats.unknown],
+              ]}
+            />
+          </>
+        )}
+
+        {activeSection === "demographic" && (
+          <>
+            <div className="status-row wide">
+              <Metric label="남성" value={demographicStats.gender.male} />
+              <Metric label="여성" value={demographicStats.gender.female} />
+              <Metric label="고령 비중" value={`${demographicStats.seniorRate}%`} />
+            </div>
+
+            <div className="stats-split-grid">
+              <div>
+                <h4>성별 분포</h4>
+                <StatsBars
+                  max={demographicStats.gender.max}
+                  rows={[
+                    ["남성", demographicStats.gender.male],
+                    ["여성", demographicStats.gender.female],
+                    ["미상", demographicStats.gender.unknown],
+                  ]}
+                />
+              </div>
+
+              <div>
+                <h4>연령대 분포</h4>
+                <StatsBars
+                  max={demographicStats.age.max}
+                  rows={demographicStats.age.rows}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
       </div>
     </section>
   );
+}
+
+function StatsBars({ rows, max }) {
+  return (
+    <div className="chart-list">
+      {rows.map(([label, value]) => (
+        <div className="bar-row" key={label}>
+          <span>{label}</span>
+          <div className="bar-track">
+            <div
+              className="bar-fill"
+              style={{ width: `${max ? (value / max) * 100 : 0}%` }}
+            />
+          </div>
+          <strong>{value}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function getStatsDescription(activeSection) {
+  if (activeSection === "time") {
+    return "실종 발생 시점을 기준으로 최근 경보와 장기 경보를 구분합니다.";
+  }
+  if (activeSection === "demographic") {
+    return "성별과 연령대를 나눠 주의가 필요한 대상군을 확인합니다.";
+  }
+  return "공식 API 조회 결과를 지역 단위로 집계합니다.";
+}
+
+function getTimeStats(alerts) {
+  const counts = {
+    week: 0,
+    month: 0,
+    year: 0,
+    threeYears: 0,
+    fiveYears: 0,
+    tenYears: 0,
+    overTenYears: 0,
+    unknown: 0,
+  };
+
+  alerts.forEach((person) => {
+    const date = parseMissingDate(person.missingAt);
+    if (!date) {
+      counts.unknown += 1;
+      return;
+    }
+
+    const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diffDays <= 7) counts.week += 1;
+    else if (diffDays <= 30) counts.month += 1;
+    else if (diffDays <= 365) counts.year += 1;
+    else if (diffDays <= 365 * 3) counts.threeYears += 1;
+    else if (diffDays <= 365 * 5) counts.fiveYears += 1;
+    else if (diffDays <= 365 * 10) counts.tenYears += 1;
+    else counts.overTenYears += 1;
+  });
+
+  return {
+    ...counts,
+    max: Math.max(
+      1,
+      counts.week,
+      counts.month,
+      counts.year,
+      counts.threeYears,
+      counts.fiveYears,
+      counts.tenYears,
+      counts.overTenYears,
+      counts.unknown,
+    ),
+  };
+}
+
+function getAgeGroup(age) {
+  const parsed = Number.parseInt(age, 10);
+  if (!Number.isFinite(parsed)) return "미상";
+  if (parsed < 20) return "10대 이하";
+  if (parsed < 40) return "20~30대";
+  if (parsed < 60) return "40~50대";
+  return "60대 이상";
+}
+
+function getDemographicStats(alerts) {
+  const gender = { male: 0, female: 0, unknown: 0 };
+  const ageCounts = new Map([
+    ["10대 이하", 0],
+    ["20~30대", 0],
+    ["40~50대", 0],
+    ["60대 이상", 0],
+    ["미상", 0],
+  ]);
+
+  alerts.forEach((person) => {
+    if (String(person.gender).includes("남")) gender.male += 1;
+    else if (String(person.gender).includes("여")) gender.female += 1;
+    else gender.unknown += 1;
+
+    const ageGroup = getAgeGroup(person.age);
+    ageCounts.set(ageGroup, (ageCounts.get(ageGroup) || 0) + 1);
+  });
+
+  const ageRows = [...ageCounts.entries()];
+  const seniorCount = ageCounts.get("60대 이상") || 0;
+
+  return {
+    gender: {
+      ...gender,
+      max: Math.max(1, gender.male, gender.female, gender.unknown),
+    },
+    age: {
+      rows: ageRows,
+      max: Math.max(1, ...ageRows.map(([, value]) => value)),
+    },
+    seniorRate: alerts.length ? Math.round((seniorCount / alerts.length) * 100) : 0,
+  };
 }
 
 function WelcomeView({ onContinue }) {
@@ -911,25 +1607,21 @@ function PersonDetail({ person }) {
       <PersonSummary person={person} large />
 
       <dl className="detail-list">
-        <div>
-          <dt>실종 일시</dt>
+        <DetailItem icon={CalendarClock} label="실종 일시">
           <dd>{person.missingAt || "미제공"}</dd>
-        </div>
+        </DetailItem>
 
-        <div>
-          <dt>발생 위치</dt>
+        <DetailItem icon={MapPinned} label="발생 위치">
           <dd>{person.locationText || "미제공"}</dd>
-        </div>
+        </DetailItem>
 
-        <div>
-          <dt>인상착의</dt>
+        <DetailItem icon={Shirt} label="인상착의">
           <dd>{person.clothing}</dd>
-        </div>
+        </DetailItem>
 
-        <div>
-          <dt>특징</dt>
+        <DetailItem icon={Sparkles} label="특이사항">
           <dd>{person.features}</dd>
-        </div>
+        </DetailItem>
       </dl>
 
       <div className="action-row">
@@ -951,8 +1643,29 @@ function PersonDetail({ person }) {
   );
 }
 
+function DetailItem({ icon: Icon, label, children }) {
+  return (
+    <div>
+      <dt>
+        <span className="detail-icon" aria-hidden="true">
+          <Icon size={15} />
+        </span>
+        {label}
+      </dt>
+      {children}
+    </div>
+  );
+}
+
 function PersonSummary({ person, large = false }) {
   const initials = person.name?.slice(0, 1) || "?";
+  const physicalItems = large
+    ? [
+        ["키", formatWithUnit(person.height, "cm"), Ruler],
+        ["몸무게", formatWithUnit(person.weight, "kg"), Weight],
+        ["체형", person.bodyType, UserRoundPlus],
+      ].filter(([, value]) => value)
+    : [];
 
   return (
     <div className={large ? "person-summary large" : "person-summary"}>
@@ -968,9 +1681,28 @@ function PersonSummary({ person, large = false }) {
         <span>
           {person.gender} · 현재 {person.age}세
         </span>
+
+        {physicalItems.length > 0 && (
+          <div className="physical-info">
+            {physicalItems.map(([label, value, Icon]) => (
+              <span className="physical-chip" key={label}>
+                <Icon size={13} aria-hidden="true" />
+                <b>{label}</b>
+                {value}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function formatWithUnit(value, unit) {
+  if (!value) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  return text.includes(unit) ? text : `${text}${unit}`;
 }
 
 function Metric({ label, value }) {

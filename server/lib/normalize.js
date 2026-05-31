@@ -55,15 +55,11 @@ export function normalizeMissingPerson(item, index = 0) {
     ["alldressingDscd", "clothing", "wearing", "etcSpfeatr"],
     "착의 정보 미제공",
   );
+  const height = firstValue(item, ["height"]);
+  const weight = firstValue(item, ["bdwgh", "weight"]);
+  const bodyType = firstValue(item, ["frmDscd", "bodyType"]);
   const features = [
     firstValue(item, ["etcSpfeatr", "features"]),
-    firstValue(item, ["height"])
-      ? `신장 ${firstValue(item, ["height"])}cm`
-      : "",
-    firstValue(item, ["bdwgh"]) ? `체중 ${firstValue(item, ["bdwgh"])}kg` : "",
-    firstValue(item, ["frmDscd"])
-      ? `체격 ${firstValue(item, ["frmDscd"])}`
-      : "",
     firstValue(item, ["hairshpeDscd"])
       ? `두발 ${firstValue(item, ["hairshpeDscd"])}`
       : "",
@@ -91,6 +87,9 @@ export function normalizeMissingPerson(item, index = 0) {
     lat,
     lng,
     clothing,
+    height,
+    weight,
+    bodyType,
     features: features.join(" · ") || "특징 정보 미제공",
     sourceUrl: firstValue(
       item,

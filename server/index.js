@@ -8,7 +8,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { getOrSetCache } from "./lib/cache.js";
 import { enrichWithCoordinates } from "./lib/kakao.js";
-import { summarizeRegions } from "./lib/normalize.js";
+import { extractRegion, summarizeRegions } from "./lib/normalize.js";
 import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,6 +88,101 @@ async function getAlerts(query) {
   });
 }
 
+function includesText(value, query) {
+  const needle = String(query || "").trim().toLowerCase();
+  if (!needle) return true;
+  return String(value || "").toLowerCase().includes(needle);
+}
+
+function inAgeRange(age, min, max) {
+  const parsed = Number.parseInt(age, 10);
+  const minAge = Number.parseInt(min, 10);
+  const maxAge = Number.parseInt(max, 10);
+
+  if (Number.isFinite(minAge) && (!Number.isFinite(parsed) || parsed < minAge)) {
+    return false;
+  }
+
+  if (Number.isFinite(maxAge) && (!Number.isFinite(parsed) || parsed > maxAge)) {
+    return false;
+  }
+
+  return true;
+}
+
+function matchesGender(gender, queryGender) {
+  const selected = String(queryGender || "").trim();
+  if (!selected) return true;
+
+  const normalizedGender = String(gender || "").trim();
+  const genderMap = new Map([
+    ["1", ["1", "남", "남자", "남성"]],
+    ["2", ["2", "여", "여자", "여성"]]
+  ]);
+  const accepted = genderMap.get(selected) || [selected];
+
+  return accepted.some((value) => normalizedGender === value);
+}
+
+function normalizeRegionQuery(region) {
+  const value = String(region || "").trim();
+  if (!value) return "";
+  return extractRegion(value);
+}
+
+function matchesRegion(locationText, queryRegion) {
+  const selected = String(queryRegion || "").trim();
+  if (!selected) return true;
+
+  const parts = selected.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const province = parts[0];
+    const district = parts.slice(1).join(" ");
+    const districtBase = district.replace(/[시군구]$/, "");
+    const normalizedProvince = normalizeRegionQuery(province);
+    const normalizedLocation = extractRegion(locationText);
+
+    return (
+      normalizedLocation === normalizedProvince &&
+      (includesText(locationText, district) ||
+        includesText(locationText, districtBase))
+    );
+  }
+
+  const normalizedSelected = normalizeRegionQuery(selected);
+  const normalizedLocation = extractRegion(locationText);
+  const canCompareNormalizedRegion = normalizedSelected !== "지역 미상";
+
+  return (
+    includesText(locationText, selected) ||
+    normalizedLocation === selected ||
+    (canCompareNormalizedRegion && normalizedLocation === normalizedSelected)
+  );
+}
+
+function matchesSearchQuery(person, query) {
+  return (
+    includesText(person.name, query.nm) &&
+    matchesRegion(person.locationText, query.occrAdres) &&
+    matchesGender(person.gender, query.sexdstnDscd) &&
+    inAgeRange(person.age, query.age1, query.age2)
+  );
+}
+
+function mergePeople(primary, fallback) {
+  const seen = new Set();
+  const merged = [];
+
+  for (const person of [...primary, ...fallback]) {
+    const key = person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(person);
+  }
+
+  return merged;
+}
+
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
@@ -109,8 +204,22 @@ app.get("/api/missing/search", asyncRoute(async (req, res) => {
   const query = readQuery(req);
   const cacheKey = `search:${JSON.stringify(query)}`;
   const people = await getOrSetCache(cacheKey, 1000 * 60 * 10, async () => {
-    const results = await searchMissingPeople(config, query);
-    return enrichWithCoordinates(results, config.kakaoRestKey);
+    const [searchResults, alertResults] = await Promise.all([
+      searchMissingPeople(config, query),
+      getAlerts({ rowSize: query.rowSize || 100 })
+    ]);
+
+    const enrichedSearchResults = await enrichWithCoordinates(
+      searchResults,
+      config.kakaoRestKey
+    );
+    const matchingAlerts = alertResults.filter((person) =>
+      matchesSearchQuery(person, query)
+    );
+
+    return mergePeople(enrichedSearchResults, matchingAlerts).filter((person) =>
+      matchesSearchQuery(person, query)
+    );
   });
   res.json({
     source: "safe182",

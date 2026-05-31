@@ -17,16 +17,17 @@ test("normalizes SafeDream alert fields into the app shape", () => {
   assert.equal(result.age, "21");
   assert.equal(result.missingAt, "2026-05-28 12:30");
   assert.equal(result.locationText, "서울시 성북구 정릉동");
-  assert.match(result.features, /신장 170cm/);
+  assert.equal(result.height, "170");
+  assert.doesNotMatch(result.features, /신장 170cm/);
 });
 
 test("summarizes regions from location text", () => {
-  assert.equal(extractRegion("서울시 성북구 정릉동"), "서울시 성북구");
+  assert.equal(extractRegion("서울시 성북구 정릉동"), "서울특별시");
   const regions = summarizeRegions([
     { locationText: "서울시 성북구 정릉동" },
     { locationText: "서울시 성북구 길음동" },
     { locationText: "부산시 해운대구 우동" }
   ]);
-  assert.equal(regions[0].region, "서울시 성북구");
+  assert.equal(regions[0].region, "서울특별시");
   assert.equal(regions[0].count, 2);
 });
