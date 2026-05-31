@@ -255,10 +255,11 @@ a {
   gap: 18px;
   height: calc(100vh - 36px - 84px);
   min-height: 0;
+  position: relative;
 }
 
 .map-layout.has-detail {
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .map-area,
@@ -779,11 +780,18 @@ a {
 }
 
 .detail-panel {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 6;
   display: grid;
   grid-template-rows: auto;
   gap: 18px;
+  width: min(340px, calc(100% - 36px));
   overflow: auto;
   padding: 0;
+  pointer-events: auto;
 }
 
 .selected-card,
@@ -1634,11 +1642,17 @@ a:focus-visible {
     height: auto;
   }
 
+  .map-layout.has-detail {
+    grid-template-columns: 1fr;
+  }
+
   .map-canvas-wrap {
     min-height: 520px;
   }
 
   .detail-panel {
+    position: static;
+    width: auto;
     max-height: none;
   }
 

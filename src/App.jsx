@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
@@ -377,7 +377,6 @@ function useKakaoMap(
   containerRef,
   instanceRef,
   people,
-  selected,
   onSelect,
   isVisible,
 ) {
@@ -480,21 +479,6 @@ function useKakaoMap(
       instanceRef.current.setLevel(6);
     }
   }, [people, onSelect, mapReady, instanceRef]);
-
-  useEffect(() => {
-    if (
-      !instanceRef.current ||
-      !selected?.lat ||
-      !selected?.lng ||
-      !window.kakao?.maps
-    ) {
-      return;
-    }
-
-    instanceRef.current.panTo(
-      new window.kakao.maps.LatLng(selected.lat, selected.lng),
-    );
-  }, [selected, instanceRef]);
 }
 
 function App() {
@@ -517,6 +501,8 @@ function App() {
     if (!mapInstanceRef.current || !window.kakao?.maps) return;
 
     const mapInstance = mapInstanceRef.current;
+    const currentCenter = mapInstance.getCenter?.();
+    const currentLevel = mapInstance.getLevel?.();
     const relayout =
       typeof mapInstance.relayout === "function"
         ? mapInstance.relayout.bind(mapInstance)
@@ -530,14 +516,9 @@ function App() {
       relayout?.();
       resize?.();
 
-      if (selected?.lat && selected?.lng) {
-        mapInstance.panTo(
-          new window.kakao.maps.LatLng(selected.lat, selected.lng),
-        );
-      } else {
-        mapInstance.setCenter(
-          new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
-        );
+      if (currentCenter) {
+        mapInstance.setCenter(currentCenter);
+        if (currentLevel) mapInstance.setLevel(currentLevel);
       }
 
       setTimeout(() => {
@@ -545,7 +526,7 @@ function App() {
         resize?.();
       }, 100);
     });
-  }, [activeTab, selected]);
+  }, [activeTab]);
 
   const loadAlerts = async () => {
     setLoading(true);
@@ -585,13 +566,13 @@ function App() {
     );
   }, [alerts, timeFilter]);
 
-  const toggleSelectedPerson = (person) => {
+  const toggleSelectedPerson = useCallback((person) => {
     setSelected((current) => {
       const isSamePerson = current?.id === person.id;
       setIsDetailOpen(!isSamePerson);
       return isSamePerson ? null : person;
     });
-  };
+  }, []);
 
   const sortedSidebarAlerts = useMemo(() => {
     const items = [...alerts];
@@ -626,7 +607,6 @@ function App() {
     mapContainerRef,
     mapInstanceRef,
     mapAlerts,
-    selected,
     toggleSelectedPerson,
     hasEntered,
   );
