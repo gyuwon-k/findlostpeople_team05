@@ -42,6 +42,28 @@ const statsSections = [
   { id: "demographic", label: "성별·연령 분석" },
 ];
 
+const trendYears = [2023, 2024, 2025, 2026];
+
+const regionAnalysisLayout = [
+  { id: "seoul", names: ["서울특별시", "서울"], label: "서울", row: 1, col: 2 },
+  { id: "gyeonggi", names: ["경기도", "경기"], label: "경기", row: 1, col: 3 },
+  { id: "incheon", names: ["인천광역시", "인천"], label: "인천", row: 2, col: 1 },
+  { id: "gangwon", names: ["강원특별자치도", "강원도", "강원"], label: "강원", row: 1, col: 4 },
+  { id: "chungnam", names: ["충청남도", "충남"], label: "충남", row: 3, col: 2 },
+  { id: "sejong", names: ["세종특별자치시", "세종"], label: "세종", row: 2, col: 2 },
+  { id: "chungbuk", names: ["충청북도", "충북"], label: "충북", row: 2, col: 3 },
+  { id: "daejeon", names: ["대전광역시", "대전"], label: "대전", row: 3, col: 3 },
+  { id: "gyeongbuk", names: ["경상북도", "경북"], label: "경북", row: 3, col: 4 },
+  { id: "jeonbuk", names: ["전북특별자치도", "전라북도", "전북"], label: "전북", row: 4, col: 2 },
+  { id: "daegu", names: ["대구광역시", "대구"], label: "대구", row: 4, col: 4 },
+  { id: "gwangju", names: ["광주광역시", "광주"], label: "광주", row: 5, col: 2 },
+  { id: "jeonnam", names: ["전라남도", "전남"], label: "전남", row: 6, col: 2 },
+  { id: "gyeongnam", names: ["경상남도", "경남"], label: "경남", row: 5, col: 3 },
+  { id: "ulsan", names: ["울산광역시", "울산"], label: "울산", row: 5, col: 4 },
+  { id: "busan", names: ["부산광역시", "부산"], label: "부산", row: 6, col: 4 },
+  { id: "jeju", names: ["제주특별자치도", "제주도", "제주"], label: "제주", row: 7, col: 2 },
+];
+
 const regionGroups = {
   서울특별시: [
     "종로구",
@@ -1570,13 +1592,17 @@ function getDisplayRegion(locationText) {
 }
 
 function StatsView({ activeSection, stats, alerts }) {
-  const max = Math.max(1, ...stats.map((item) => item.count));
   const topRegion = stats[0]?.region || "집계 대기";
+  const [selectedRegionId, setSelectedRegionId] = useState(
+    regionAnalysisLayout[0].id,
+  );
+  const [selectedTrendYear, setSelectedTrendYear] = useState(2026);
   const activeStatsTitle =
     statsSections.find((section) => section.id === activeSection)?.label ||
     "지역 분석";
-  const monthlyStats = getMonthlyStats(alerts);
+  const monthlyStats = getMonthlyStats(alerts, selectedTrendYear);
   const demographicStats = getDemographicStats(alerts);
+  const regionStats = getRegionAnalysisStats(stats, alerts, selectedRegionId);
 
   return (
     <section className="content-view" aria-labelledby="stats-title">
@@ -1593,39 +1619,103 @@ function StatsView({ activeSection, stats, alerts }) {
 
         {activeSection === "region" && (
           <>
-            <div className="status-row wide">
-              <Metric label="분석 대상" value={alerts.length} />
-              <Metric label="상위 지역" value={topRegion} />
-              <Metric label="지역 수" value={stats.length} />
-            </div>
-
-            <div className="chart-list">
-              {stats.map((item) => (
-                <div className="bar-row" key={item.region}>
-                  <span>{item.region}</span>
-                  <div className="bar-track">
-                    <div
-                      className="bar-fill"
-                      style={{ width: `${(item.count / max) * 100}%` }}
-                    />
-                  </div>
-                  <strong>{item.count}</strong>
+            <div className="region-analysis">
+              <div className="region-map-card">
+                <div className="region-map-title">
+                  <strong>시도별 실종자 현황</strong>
+                  <span>지역을 클릭하면 상세 현황을 확인할 수 있습니다.</span>
                 </div>
-              ))}
 
-              {stats.length === 0 && (
-                <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>
-              )}
+                <div className="region-cartogram" aria-label="시도별 실종자 카토그램">
+                  {regionStats.regions.map((region) => (
+                    <button
+                      className={
+                        region.id === selectedRegionId
+                          ? "cartogram-cell active"
+                          : "cartogram-cell"
+                      }
+                      key={region.id}
+                      style={{
+                        gridColumn: region.col,
+                        gridRow: region.row,
+                        "--region-color": region.color,
+                      }}
+                      type="button"
+                      onClick={() => setSelectedRegionId(region.id)}
+                      title={`${region.label}: ${region.count}명`}
+                    >
+                      <span>{region.label}</span>
+                      <strong>{region.count}</strong>
+                    </button>
+                  ))}
+                </div>
+                <div className="cartogram-legend" aria-hidden="true">
+                  <span>적음</span>
+                  {regionStats.legend.map((color) => (
+                    <i key={color} style={{ background: color }} />
+                  ))}
+                  <span>많음</span>
+                </div>
+
+                {stats.length === 0 && (
+                  <p className="empty-text">집계할 공식 데이터가 아직 없습니다.</p>
+                )}
+              </div>
+
+              <aside className="region-detail-card">
+                <div>
+                  <h4>{regionStats.selected.label}</h4>
+                  <span>지역 발생 비율</span>
+                </div>
+                <div
+                  className="region-rate-ring"
+                  style={{ "--region-rate": `${regionStats.selected.rate}%` }}
+                >
+                  <strong>{regionStats.selected.rate}%</strong>
+                  <span>전체 대비</span>
+                </div>
+                <dl className="region-detail-list">
+                  <div>
+                    <dt>누적 실종자</dt>
+                    <dd>{regionStats.selected.count}명</dd>
+                  </div>
+                  <div>
+                    <dt>지역 순위</dt>
+                    <dd>{regionStats.selected.rankLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>분석 대상</dt>
+                    <dd>{alerts.length}명</dd>
+                  </div>
+                  <div>
+                    <dt>상위 지역</dt>
+                    <dd>{topRegion}</dd>
+                  </div>
+                </dl>
+              </aside>
             </div>
           </>
         )}
 
         {activeSection === "time" && (
           <>
+            <div className="year-segmented-control" aria-label="최근 발생 추이 연도 선택">
+              {trendYears.map((year) => (
+                <button
+                  className={selectedTrendYear === year ? "active" : ""}
+                  key={year}
+                  type="button"
+                  onClick={() => setSelectedTrendYear(year)}
+                >
+                  {year}년
+                </button>
+              ))}
+            </div>
+
             <div className="status-row wide">
-              <Metric label="?? ??" value={monthlyStats.periodLabel} />
-              <Metric label="?? ???" value={monthlyStats.peakLabel} />
-              <Metric label="???" value={monthlyStats.average} />
+              <Metric label="집계 기간" value={monthlyStats.periodLabel} />
+              <Metric label="최다 발생 월" value={monthlyStats.peakLabel} />
+              <Metric label="월평균" value={monthlyStats.average} />
             </div>
 
             <MonthlyTrendChart rows={monthlyStats.rows} max={monthlyStats.max} />
@@ -1642,19 +1732,19 @@ function StatsView({ activeSection, stats, alerts }) {
 
             <div className="stats-split-grid">
               <div>
-                <h4>?? ??</h4>
+                <h4>성별 분포</h4>
                 <DonutChart
                   rows={[
-                    ["??", demographicStats.gender.male],
-                    ["??", demographicStats.gender.female],
-                    ["??", demographicStats.gender.unknown],
+                    ["남성", demographicStats.gender.male],
+                    ["여성", demographicStats.gender.female],
+                    ["미상", demographicStats.gender.unknown],
                   ]}
                   colors={["#2a9d8f", "#e76f51", "#8fa6a0"]}
                 />
               </div>
 
               <div>
-                <h4>??? ??</h4>
+                <h4>연령대 분포</h4>
                 <DonutChart
                   rows={demographicStats.age.rows}
                   colors={["#2878a8", "#74b566", "#e9b44c", "#d85c3a", "#8fa6a0"]}
@@ -1687,6 +1777,45 @@ function StatsBars({ rows, max }) {
       ))}
     </div>
   );
+}
+
+function getRegionAnalysisStats(stats, alerts, selectedRegionId) {
+  const legend = ["#f8dfe3", "#f1b8c0", "#e88997", "#da5b6d", "#c8293f"];
+  const normalizedStats = new Map(
+    stats.map((item) => [String(item.region || "").trim(), item.count || 0]),
+  );
+  const total = Math.max(1, alerts.length || stats.reduce((sum, item) => sum + item.count, 0));
+  const max = Math.max(1, ...stats.map((item) => item.count || 0));
+  const regions = regionAnalysisLayout.map((region) => {
+    const count =
+      region.names.reduce(
+        (found, name) =>
+          found || normalizedStats.get(name) || normalizedStats.get(name.replace(/(특별시|광역시|특별자치시|특별자치도|자치도|도)$/u, "")),
+        0,
+      ) || 0;
+
+    return {
+      ...region,
+      count,
+      rate: Math.round((count / total) * 1000) / 10,
+      strength: Math.max(0.15, count / max),
+      color: count ? legend[Math.min(4, Math.ceil((count / max) * 5) - 1)] : "#f7ecee",
+    };
+  });
+  const selected = regions.find((region) => region.id === selectedRegionId) || regions[0];
+  const rank =
+    [...regions]
+      .sort((a, b) => b.count - a.count)
+      .findIndex((region) => region.id === selected.id) + 1;
+
+  return {
+    legend,
+    regions,
+    selected: {
+      ...selected,
+      rankLabel: selected.count ? `${rank}위 / ${regions.length}개 지역` : "집계 대기",
+    },
+  };
 }
 
 function DonutChart({ rows, colors }) {
@@ -1771,24 +1900,24 @@ function getStatsDescription(activeSection) {
   return "공식 API 조회 결과를 지역 단위로 집계합니다.";
 }
 
-function getMonthlyStats(alerts) {
-  const start = new Date(2023, 8, 1);
-  const end = new Date(2026, 4, 1);
+function getMonthlyStats(alerts, selectedYear) {
+  const firstMonth = 1;
+  const lastMonth = 12;
   const counts = new Map();
   const rows = [];
 
-  for (
-    const cursor = new Date(start);
-    cursor <= end;
-    cursor.setMonth(cursor.getMonth() + 1)
-  ) {
-    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
+  for (let month = firstMonth; month <= lastMonth; month += 1) {
+    const key = `${selectedYear}-${String(month).padStart(2, "0")}`;
     counts.set(key, 0);
   }
 
   alerts.forEach((person) => {
     const date = parseMissingDate(person.missingAt);
-    if (!date || date < start || date > new Date(2026, 4, 31, 23, 59, 59)) {
+    if (
+      !date ||
+      date.getFullYear() !== selectedYear ||
+      date.getMonth() + 1 < firstMonth
+    ) {
       return;
     }
 
@@ -1816,7 +1945,7 @@ function getMonthlyStats(alerts) {
   return {
     rows,
     max,
-    periodLabel: "2023.09~2026.05",
+    periodLabel: `${selectedYear}.${String(firstMonth).padStart(2, "0")}~${selectedYear}.12`,
     peakLabel: `${peak.label} ${peak.count}건`,
     average: `${Math.round(total / Math.max(1, rows.length))}건`,
   };
@@ -2027,6 +2156,16 @@ function RegisterView({ authToken, onCreated, onReload }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const photoPreviewUrl = useMemo(
+    () => (photoFile ? URL.createObjectURL(photoFile) : ""),
+    [photoFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    };
+  }, [photoPreviewUrl]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -2075,103 +2214,191 @@ function RegisterView({ authToken, onCreated, onReload }) {
     <section className="content-view" aria-labelledby="register-title">
       <div className="local-register-note">
         <strong>실종자 등록</strong>
-        <span>등록이 완료되면 공식 API 데이터와 분리된 직접 등록 데이터로 지도에 표시됩니다.</span>
+        <span>보호자 확인과 실종자 식별에 필요한 정보를 정확히 입력해주세요.</span>
       </div>
       <div className="section-heading">
         <h2 id="register-title">실종자 등록</h2>
-        <p>직접 등록한 실종자 정보는 공식 API와 분리되어 저장되고 지도에 표시됩니다.</p>
-      </div>
-
-      <div className="review-flow">
-        <span className="active">정보 입력</span>
-        <span>사진 등록</span>
-        <span>위치 변환</span>
-        <span>지도 표시</span>
+        <p>입력한 정보는 직접 등록 데이터로 저장됩니다.</p>
       </div>
 
       <form className="register-form" onSubmit={submit}>
-        {[
-          ["guardianName", "등록자 이름"],
-          ["guardianPhone", "보호자 연락처"],
-          ["missingName", "실종자 이름"],
-          ["missingAt", "실종 일시"],
-          ["locationText", "마지막 목격 위치"],
-          ["clothing", "인상착의"],
-          ["features", "신체 특징"],
-        ].map(([key, label]) => (
-          <label key={key}>
-            {label}
+        <div className="register-form-card">
+          <fieldset>
+            <legend>보호자 정보</legend>
+            <div className="register-field-grid two">
+              <label>
+                등록자 이름
+                <input
+                  value={form.guardianName}
+                  onChange={(event) =>
+                    setForm({ ...form, guardianName: event.target.value })
+                  }
+                  placeholder="예: 홍길동"
+                />
+              </label>
+
+              <label>
+                보호자 연락처
+                <input
+                  required
+                  value={form.guardianPhone}
+                  onChange={(event) =>
+                    setForm({ ...form, guardianPhone: event.target.value })
+                  }
+                  placeholder="예: 010-0000-0000"
+                />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>실종자 기본 정보</legend>
+            <div className="register-field-grid">
+              <label>
+                실종자 이름
+                <input
+                  required
+                  value={form.missingName}
+                  onChange={(event) =>
+                    setForm({ ...form, missingName: event.target.value })
+                  }
+                  placeholder="이름"
+                />
+              </label>
+
+              <label>
+                성별
+                <select
+                  value={form.gender}
+                  onChange={(event) => setForm({ ...form, gender: event.target.value })}
+                >
+                  <option value="">미상</option>
+                  <option value="남성">남성</option>
+                  <option value="여성">여성</option>
+                </select>
+              </label>
+
+              <label>
+                나이
+                <input
+                  inputMode="numeric"
+                  value={form.age}
+                  onChange={(event) => setForm({ ...form, age: event.target.value })}
+                  placeholder="예: 72"
+                />
+              </label>
+
+              <label>
+                실종 일시
+                <input
+                  required
+                  value={form.missingAt}
+                  onChange={(event) => setForm({ ...form, missingAt: event.target.value })}
+                  placeholder="예: 2026-06-01 14:30"
+                />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>마지막 확인 정보</legend>
+            <div className="register-field-grid">
+              <label className="wide-field">
+                마지막 목격 위치
+                <input
+                  required
+                  value={form.locationText}
+                  onChange={(event) => setForm({ ...form, locationText: event.target.value })}
+                  placeholder="예: 대구 북구 산격동 인근"
+                />
+              </label>
+
+              <label className="wide-field">
+                인상착의
+                <textarea
+                  value={form.clothing}
+                  onChange={(event) => setForm({ ...form, clothing: event.target.value })}
+                  placeholder="예: 검은 점퍼, 회색 바지, 흰 운동화"
+                />
+              </label>
+
+              <label className="wide-field">
+                신체 특징
+                <textarea
+                  value={form.features}
+                  onChange={(event) => setForm({ ...form, features: event.target.value })}
+                  placeholder="예: 왼쪽 팔에 흉터, 안경 착용"
+                />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>신체 정보</legend>
+            <div className="register-field-grid three">
+              <label>
+                키(cm)
+                <input
+                  inputMode="numeric"
+                  value={form.height}
+                  onChange={(event) => setForm({ ...form, height: event.target.value })}
+                  placeholder="예: 168"
+                />
+              </label>
+
+              <label>
+                몸무게(kg)
+                <input
+                  inputMode="numeric"
+                  value={form.weight}
+                  onChange={(event) => setForm({ ...form, weight: event.target.value })}
+                  placeholder="예: 62"
+                />
+              </label>
+
+              <label>
+                체형
+                <input
+                  value={form.bodyType}
+                  onChange={(event) => setForm({ ...form, bodyType: event.target.value })}
+                  placeholder="예: 보통"
+                />
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <aside className="register-photo-card">
+          <div className="register-photo-preview">
+            {photoPreviewUrl ? (
+              <img src={photoPreviewUrl} alt="등록할 실종자 사진 미리보기" />
+            ) : (
+              <div>
+                <UserRoundPlus size={36} />
+                <span>사진 미리보기</span>
+              </div>
+            )}
+          </div>
+
+          <label className="custom-file-button">
             <input
-              required={["guardianPhone", "missingName", "missingAt", "locationText"].includes(key)}
-              value={form[key]}
-              onChange={(event) =>
-                setForm({ ...form, [key]: event.target.value })
-              }
+              required
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(event) => setPhotoFile(event.target.files?.[0] || null)}
             />
+            파일 선택
           </label>
-        ))}
 
-        <label>
-          나이
-          <input
-            inputMode="numeric"
-            value={form.age}
-            onChange={(event) => setForm({ ...form, age: event.target.value })}
-          />
-        </label>
+          <p className="selected-file-name">
+            {photoFile ? photoFile.name : "PNG, JPG, WEBP 파일을 등록할 수 있습니다."}
+          </p>
 
-        <label>
-          성별
-          <select
-            value={form.gender}
-            onChange={(event) => setForm({ ...form, gender: event.target.value })}
-          >
-            <option value="">미상</option>
-            <option value="남성">남성</option>
-            <option value="여성">여성</option>
-          </select>
-        </label>
-
-        <label>
-          키(cm)
-          <input
-            inputMode="numeric"
-            value={form.height}
-            onChange={(event) => setForm({ ...form, height: event.target.value })}
-          />
-        </label>
-
-        <label>
-          몸무게(kg)
-          <input
-            inputMode="numeric"
-            value={form.weight}
-            onChange={(event) => setForm({ ...form, weight: event.target.value })}
-          />
-        </label>
-
-        <label>
-          체형
-          <input
-            value={form.bodyType}
-            onChange={(event) => setForm({ ...form, bodyType: event.target.value })}
-          />
-        </label>
-
-        <label>
-          실종자 사진
-          <input
-            required
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => setPhotoFile(event.target.files?.[0] || null)}
-          />
-        </label>
-
-        <button className="primary-button" type="submit" disabled={submitting}>
-          {submitting ? <Loader2 className="spin" size={18} /> : <ShieldCheck size={18} />}
-          실종자 등록
-        </button>
+          <button className="primary-button register-submit-button" type="submit" disabled={submitting}>
+            {submitting ? <Loader2 className="spin" size={18} /> : <ShieldCheck size={18} />}
+            실종자 등록
+          </button>
+        </aside>
       </form>
 
       {message && (

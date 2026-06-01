@@ -27,7 +27,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -1297,6 +1298,202 @@ a {
   color: #4f6b63;
 }
 
+.region-analysis {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.region-map-card,
+.region-detail-card {
+  border: 1px solid #dce5e2;
+  border-radius: 12px;
+  background: #fbfdfc;
+}
+
+.region-map-card {
+  min-height: 590px;
+  padding: 18px;
+}
+
+.region-map-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.region-map-title strong {
+  color: #18312d;
+  font-size: 18px;
+}
+
+.region-map-title span {
+  color: #6f817d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.region-cartogram {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(74px, 1fr));
+  grid-template-rows: repeat(7, minmax(58px, 1fr));
+  gap: 8px;
+  min-height: 520px;
+  padding: 28px clamp(18px, 6vw, 92px);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.cartogram-cell {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 58px;
+  border: 1px solid rgba(115, 38, 48, 0.18);
+  border-radius: 8px;
+  background: var(--region-color);
+  color: #4b1f27;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.cartogram-cell span {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.cartogram-cell strong {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.cartogram-cell.active {
+  border-color: #343236;
+  color: #ffffff;
+  outline: 3px solid rgba(52, 50, 54, 0.22);
+  outline-offset: 1px;
+  box-shadow: 0 10px 22px rgba(52, 50, 54, 0.16);
+}
+
+.cartogram-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 12px;
+  color: #6b5e64;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cartogram-legend i {
+  width: 22px;
+  height: 10px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(115, 38, 48, 0.1);
+}
+
+.year-segmented-control {
+  display: inline-grid;
+  grid-template-columns: repeat(4, minmax(78px, 1fr));
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 4px;
+  border: 1px solid #dce5e2;
+  border-radius: 8px;
+  background: #f4f8f6;
+}
+
+.year-segmented-control button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #4f6b63;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.year-segmented-control button.active {
+  background: #244d46;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(36, 77, 70, 0.18);
+}
+
+.region-detail-card {
+  display: grid;
+  align-content: start;
+  gap: 28px;
+  padding: 28px;
+  background: #f5f3f6;
+}
+
+.region-detail-card h4 {
+  margin: 0;
+  color: #161718;
+  font-size: 28px;
+}
+
+.region-detail-card span {
+  color: #6b5e64;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.region-rate-ring {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f5f3f6 0 55%, transparent 56%),
+    conic-gradient(#d83a4c 0 var(--region-rate), #dfddde var(--region-rate) 100%);
+}
+
+.region-rate-ring strong {
+  color: #161718;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.region-rate-ring span {
+  font-size: 12px;
+}
+
+.region-detail-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+
+.region-detail-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.region-detail-list dt {
+  color: #6b5e64;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.region-detail-list dd {
+  margin: 0;
+  color: #151719;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: right;
+}
+
 .stats-split-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1453,11 +1650,65 @@ a {
   color: #0f6f57;
 }
 
-.search-grid,
-.register-form {
+.search-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));
   gap: 12px;
+}
+
+.register-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: start;
+}
+
+.register-form-card,
+.register-photo-card {
+  border: 1px solid #dce5e2;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(20, 42, 37, 0.06);
+}
+
+.register-form-card {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+
+.register-form fieldset {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.register-form legend {
+  margin-bottom: 12px;
+  color: #18312d;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.register-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.register-field-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.register-field-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.register-field-grid .wide-field {
+  grid-column: 1 / -1;
 }
 
 .search-wrapper label {
@@ -1473,6 +1724,12 @@ label {
   gap: 7px;
   color: #3d4c49;
   font-weight: 700;
+}
+
+.register-form label {
+  color: #2f4a44;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .reset-button {
@@ -1534,7 +1791,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 42px;
   border: 1px solid #cfdad7;
@@ -1544,12 +1802,106 @@ select {
   color: #17202a;
 }
 
+textarea {
+  min-height: 88px;
+  padding: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
 input:focus,
 select:focus,
+textarea:focus,
 button:focus-visible,
 a:focus-visible {
   outline: 3px solid #8ed1c3;
   outline-offset: 2px;
+}
+
+.register-form input,
+.register-form select,
+.register-form textarea {
+  border-color: #d8e3df;
+  border-radius: 10px;
+  background: #fbfdfc;
+}
+
+.register-form input::placeholder,
+.register-form textarea::placeholder {
+  color: #9aa8a4;
+}
+
+.register-photo-card {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.register-photo-preview {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 1px solid #d8e3df;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f6faf8 0%, #edf4f1 100%);
+}
+
+.register-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.register-photo-preview > div {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: #6b7d78;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.register-photo-preview svg {
+  color: #244d46;
+}
+
+.custom-file-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid #244d46;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #244d46;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.custom-file-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.selected-file-name {
+  min-height: 36px;
+  margin: 0;
+  color: #5e736e;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.register-submit-button {
+  width: 100%;
 }
 
 .results-grid {
@@ -1769,7 +2121,7 @@ a:focus-visible {
 
 .monthly-bars {
   display: grid;
-  grid-template-columns: repeat(33, minmax(16px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
   align-items: end;
   gap: 6px;
   min-width: 0;
@@ -1781,7 +2133,7 @@ a:focus-visible {
   display: grid;
   grid-template-rows: minmax(260px, 1fr) 28px;
   gap: 8px;
-  min-width: 18px;
+  min-width: 34px;
   align-items: end;
 }
 
@@ -1806,29 +2158,8 @@ a:focus-visible {
   font-size: 11px;
   font-weight: 800;
   text-align: center;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-
-.review-flow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.review-flow span {
-  padding: 12px;
-  border-radius: 8px;
-  background: #eef3f1;
-  color: #52645f;
-  text-align: center;
-  font-weight: 700;
-}
-
-.review-flow .active {
-  background: #244d46;
-  color: #ffffff;
+  line-height: 1.2;
+  word-break: keep-all;
 }
 
 .success-box,
@@ -1926,6 +2257,33 @@ a:focus-visible {
     position: static;
   }
 
+  .register-form {
+    grid-template-columns: 1fr;
+  }
+
+  .register-photo-card {
+    position: static;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .register-submit-button {
+    grid-column: 1 / -1;
+  }
+
+  .region-analysis {
+    grid-template-columns: 1fr;
+  }
+
+  .region-map-card {
+    min-height: 520px;
+  }
+
+  .region-cartogram {
+    min-height: 450px;
+    padding-inline: clamp(12px, 4vw, 42px);
+  }
+
   .result-card {
     grid-template-columns: 120px minmax(0, 1fr);
   }
@@ -1966,13 +2324,70 @@ a:focus-visible {
 
   .status-row,
   .search-grid,
-  .register-form,
-  .review-flow {
+  .register-form {
     grid-template-columns: 1fr;
   }
 
   .stats-split-grid {
     grid-template-columns: 1fr;
+  }
+
+  .register-form-card,
+  .register-photo-card {
+    padding: 14px;
+  }
+
+  .register-field-grid,
+  .register-field-grid.two,
+  .register-field-grid.three {
+    grid-template-columns: 1fr;
+  }
+
+  .register-photo-card {
+    grid-template-columns: 1fr;
+  }
+
+  .register-photo-preview {
+    max-height: 360px;
+  }
+
+  .region-map-card,
+  .region-detail-card {
+    padding: 14px;
+  }
+
+  .region-cartogram {
+    grid-template-columns: repeat(4, minmax(48px, 1fr));
+    grid-template-rows: repeat(7, minmax(46px, 1fr));
+    gap: 6px;
+    min-height: 390px;
+    padding: 12px;
+  }
+
+  .cartogram-cell {
+    min-height: 46px;
+  }
+
+  .cartogram-cell strong {
+    font-size: 15px;
+  }
+
+  .cartogram-cell span {
+    font-size: 11px;
+  }
+
+  .monthly-chart {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding-inline: 10px;
+  }
+
+  .year-segmented-control {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .monthly-bars {
+    grid-template-columns: repeat(auto-fit, minmax(28px, 1fr));
   }
 
   .map-canvas-wrap {
