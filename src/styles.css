@@ -1337,6 +1337,39 @@ label {
   border-color: #a8d5ce;
 }
 
+.reset-button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.disaster-cache-box {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #d8e8e0;
+  border-radius: 12px;
+  background: #f8fcfb;
+}
+
+.disaster-cache-box strong {
+  display: block;
+  color: #18312d;
+  font-size: 14px;
+}
+
+.disaster-cache-box span {
+  display: block;
+  margin-top: 4px;
+  color: #5e736e;
+  font-size: 12px;
+}
+
+.cache-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 input,
 select {
   width: 100%;

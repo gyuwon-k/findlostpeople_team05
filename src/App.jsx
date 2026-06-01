@@ -486,6 +486,7 @@ function App() {
   const [activeStatsSection, setActiveStatsSection] = useState("region");
   const [listSort, setListSort] = useState("recent");
   const [alerts, setAlerts] = useState([]);
+  const [searchMapPeople, setSearchMapPeople] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -537,11 +538,13 @@ function App() {
         `/api/missing/alerts?rowSize=${ALERT_ROW_SIZE}`,
       );
       setAlerts(data.items || []);
+      setSearchMapPeople([]);
       setSelected(null);
       setIsDetailOpen(false);
     } catch (err) {
       setError(err.message);
       setAlerts([]);
+      setSearchMapPeople([]);
       setSelected(null);
       setIsDetailOpen(false);
     } finally {
@@ -560,11 +563,55 @@ function App() {
   }, []);
 
   const mapAlerts = useMemo(() => {
-    if (timeFilter === "all") return alerts;
-    return alerts.filter(
+    const merged = [...alerts];
+    const seen = new Set(
+      merged.map(
+        (person) =>
+          person.id || `${person.name}:${person.missingAt}:${person.locationText}`,
+      ),
+    );
+
+    searchMapPeople.forEach((person) => {
+      const key =
+        person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      merged.push(person);
+    });
+
+    if (timeFilter === "all") return merged;
+    return merged.filter(
       (person) => getMissingDateBucket(person.missingAt) === timeFilter,
     );
-  }, [alerts, timeFilter]);
+  }, [alerts, searchMapPeople, timeFilter]);
+
+  const showSearchPersonOnMap = useCallback((person) => {
+    setSearchMapPeople((current) => {
+      const key =
+        person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+      const exists = current.some(
+        (item) =>
+          (item.id || `${item.name}:${item.missingAt}:${item.locationText}`) === key,
+      );
+      return exists ? current : [person, ...current];
+    });
+    setSelected(person);
+    setIsDetailOpen(true);
+
+    if (person.lat && person.lng && mapInstanceRef.current && window.kakao?.maps) {
+      const position = new window.kakao.maps.LatLng(person.lat, person.lng);
+      window.requestAnimationFrame(() => {
+        mapInstanceRef.current.relayout?.();
+        mapInstanceRef.current.panTo(position);
+        mapInstanceRef.current.setLevel(7);
+      });
+      setTimeout(() => {
+        mapInstanceRef.current?.relayout?.();
+        mapInstanceRef.current?.panTo(position);
+        mapInstanceRef.current?.setLevel(7);
+      }, 120);
+    }
+  }, []);
 
   const toggleSelectedPerson = useCallback((person) => {
     setSelected((current) => {
@@ -733,7 +780,10 @@ function App() {
             activeTab === "search" ? "view-pane active" : "view-pane hidden"
           }
         >
-          <SearchView onSelect={setSelected} setActiveTab={setActiveTab} />
+          <SearchView
+            onSelect={showSearchPersonOnMap}
+            setActiveTab={setActiveTab}
+          />
         </div>
 
         <div
@@ -1012,6 +1062,36 @@ function SearchView({ onSelect, setActiveTab }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cacheStatus, setCacheStatus] = useState(null);
+  const [cacheLoading, setCacheLoading] = useState(false);
+
+  const loadCacheStatus = useCallback(() => {
+    fetchJson("/api/disaster-missing/cache/status")
+      .then((data) => setCacheStatus(data))
+      .catch(() => setCacheStatus(null));
+  }, []);
+
+  useEffect(() => {
+    loadCacheStatus();
+  }, [loadCacheStatus]);
+
+  const refreshDisasterCache = async (mode) => {
+    setCacheLoading(true);
+    setError("");
+
+    try {
+      const data = await fetchJson("/api/disaster-missing/cache/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
+      });
+      setCacheStatus(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCacheLoading(false);
+    }
+  };
 
   const submit = async (event) => {
     event.preventDefault();
@@ -1133,6 +1213,35 @@ function SearchView({ onSelect, setActiveTab }) {
         >
           <span>↻</span> 초기화
         </button>
+
+        <div className="disaster-cache-box">
+          <div>
+            <strong>긴급문자 DB</strong>
+            <span>
+              {cacheStatus?.count
+                ? `${cacheStatus.count}건 저장됨`
+                : "저장된 데이터 없음"}
+            </span>
+          </div>
+          <div className="cache-actions">
+            <button
+              className="reset-button"
+              type="button"
+              disabled={cacheLoading}
+              onClick={() => refreshDisasterCache("quick")}
+            >
+              최신 갱신
+            </button>
+            <button
+              className="reset-button"
+              type="button"
+              disabled={cacheLoading}
+              onClick={() => refreshDisasterCache("full")}
+            >
+              전체 수집
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="results-wrapper">

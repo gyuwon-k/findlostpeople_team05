@@ -6,7 +6,11 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import { getOrSetCache } from "./lib/cache.js";
+import { clearCache, getOrSetCache } from "./lib/cache.js";
+import {
+  collectMissingDisasterMessages,
+  fetchMissingDisasterMessages
+} from "./lib/disasterMessages.js";
 import { enrichWithCoordinates } from "./lib/kakao.js";
 import { extractRegion, summarizeRegions } from "./lib/normalize.js";
 import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
@@ -14,6 +18,7 @@ import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, "data");
 const reportPath = path.join(dataDir, "guardian-reports.local.json");
+const disasterCachePath = path.join(dataDir, "disaster-missing-cache.json");
 
 const app = express();
 
@@ -24,7 +29,8 @@ const config = {
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
   safeDreamId: process.env.SAFEDREAM_ESNTL_ID,
   safeDreamKey: process.env.SAFEDREAM_AUTH_KEY,
-  kakaoRestKey: process.env.KAKAO_REST_API_KEY
+  kakaoRestKey: process.env.KAKAO_REST_API_KEY,
+  disasterMsgKey: process.env.DISASTER_MSG_API_KEY
 };
 
 const allowedOrigins = new Set([
@@ -85,6 +91,92 @@ async function getAlerts(query) {
   return getOrSetCache(cacheKey, 1000 * 60 * 10, async () => {
     const people = await fetchAlerts(config, query);
     return enrichWithCoordinates(people, config.kakaoRestKey);
+  });
+}
+
+function mergeCacheItems(existing, incoming) {
+  const seen = new Set();
+  const merged = [];
+
+  for (const item of [...incoming, ...existing]) {
+    const key = item.id || `${item.name}:${item.missingAt}:${item.locationText}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(item);
+  }
+
+  return merged;
+}
+
+async function readDisasterCache() {
+  try {
+    const cache = JSON.parse(await fs.readFile(disasterCachePath, "utf8"));
+    return {
+      items: Array.isArray(cache.items) ? cache.items : [],
+      meta: cache.meta || {}
+    };
+  } catch {
+    return { items: [], meta: {} };
+  }
+}
+
+async function writeDisasterCache(items, meta = {}) {
+  await fs.mkdir(dataDir, { recursive: true });
+  const payload = {
+    meta: {
+      ...meta,
+      itemCount: items.length,
+      savedAt: new Date().toISOString()
+    },
+    items
+  };
+  await fs.writeFile(disasterCachePath, JSON.stringify(payload, null, 2), "utf8");
+  return payload;
+}
+
+async function refreshDisasterCache(mode = "quick") {
+  const current = await readDisasterCache();
+  const collected = await collectMissingDisasterMessages(config, {
+    mode,
+    rowSize: 100,
+    recentPages: 20
+  });
+  const items =
+    collected.mode === "full"
+      ? collected.items
+      : mergeCacheItems(current.items, collected.items);
+
+  const cache = await writeDisasterCache(items, {
+    mode: collected.mode,
+    calls: collected.calls,
+    scannedPages: collected.scannedPages,
+    apiTotalCount: collected.totalCount,
+    latestPage: collected.latestPage,
+    refreshedAt: collected.refreshedAt
+  });
+  clearCache();
+  return cache;
+}
+
+async function getMissingDisasterMessages(query) {
+  const cacheKey = `disaster-messages:${JSON.stringify(query)}`;
+  return getOrSetCache(cacheKey, 1000 * 60 * 5, async () => {
+    const cached = await readDisasterCache();
+    if (cached.items.length > 0) {
+      return cached.items;
+    }
+
+    try {
+      const messages = await fetchMissingDisasterMessages(config, {
+        page: query.page || 1,
+        rowSize: query.rowSize || 100,
+        recentPages: 20
+      });
+      return messages;
+    } catch (error) {
+      console.warn("Disaster message API skipped:", error.message);
+      return [];
+    }
   });
 }
 
@@ -161,8 +253,15 @@ function matchesRegion(locationText, queryRegion) {
 }
 
 function matchesSearchQuery(person, query) {
+  const textForNameSearch = [
+    person.name,
+    person.features,
+    person.clothing,
+    person.locationText,
+  ].join(" ");
+
   return (
-    includesText(person.name, query.nm) &&
+    includesText(textForNameSearch, query.nm) &&
     matchesRegion(person.locationText, query.occrAdres) &&
     matchesGender(person.gender, query.sexdstnDscd) &&
     inAgeRange(person.age, query.age1, query.age2)
@@ -187,7 +286,8 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     safeDreamConfigured: Boolean(config.safeDreamId && config.safeDreamKey),
-    kakaoGeocodingConfigured: Boolean(config.kakaoRestKey)
+    kakaoGeocodingConfigured: Boolean(config.kakaoRestKey),
+    disasterMessageConfigured: Boolean(config.disasterMsgKey)
   });
 });
 
@@ -204,9 +304,10 @@ app.get("/api/missing/search", asyncRoute(async (req, res) => {
   const query = readQuery(req);
   const cacheKey = `search:${JSON.stringify(query)}`;
   const people = await getOrSetCache(cacheKey, 1000 * 60 * 10, async () => {
-    const [searchResults, alertResults] = await Promise.all([
+    const [searchResults, alertResults, disasterMessages] = await Promise.all([
       searchMissingPeople(config, query),
-      getAlerts({ rowSize: query.rowSize || 100 })
+      getAlerts({ rowSize: query.rowSize || 100 }),
+      getMissingDisasterMessages({ rowSize: 100 })
     ]);
 
     const enrichedSearchResults = await enrichWithCoordinates(
@@ -216,15 +317,50 @@ app.get("/api/missing/search", asyncRoute(async (req, res) => {
     const matchingAlerts = alertResults.filter((person) =>
       matchesSearchQuery(person, query)
     );
-
-    return mergePeople(enrichedSearchResults, matchingAlerts).filter((person) =>
+    const matchingDisasterMessages = disasterMessages.filter((person) =>
       matchesSearchQuery(person, query)
     );
+    const enrichedDisasterMessages = await enrichWithCoordinates(
+      matchingDisasterMessages.slice(0, 30),
+      config.kakaoRestKey
+    );
+
+    return mergePeople(
+      mergePeople(enrichedSearchResults, matchingAlerts),
+      enrichedDisasterMessages,
+    ).filter((person) => matchesSearchQuery(person, query));
   });
   res.json({
-    source: "safe182",
+    source: "safe182+disaster-message",
     count: people.length,
     items: people
+  });
+}));
+
+app.get("/api/disaster-missing/messages", asyncRoute(async (req, res) => {
+  const messages = await getMissingDisasterMessages(readQuery(req));
+  res.json({
+    source: "disaster-message",
+    count: messages.length,
+    items: messages
+  });
+}));
+
+app.get("/api/disaster-missing/cache/status", asyncRoute(async (req, res) => {
+  const cache = await readDisasterCache();
+  res.json({
+    configured: Boolean(config.disasterMsgKey),
+    count: cache.items.length,
+    meta: cache.meta
+  });
+}));
+
+app.post("/api/disaster-missing/cache/refresh", asyncRoute(async (req, res) => {
+  const mode = req.body?.mode === "full" ? "full" : "quick";
+  const cache = await refreshDisasterCache(mode);
+  res.json({
+    count: cache.items.length,
+    meta: cache.meta
   });
 }));
 
