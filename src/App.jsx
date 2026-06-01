@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   FileSearch,
   Loader2,
+  LogOut,
   MapPin,
   MapPinned,
   Phone,
@@ -22,6 +23,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY || "";
 const KNU_CENTER = { lat: 35.8908, lng: 128.6111 };
 const ALERT_ROW_SIZE = 100;
+const AUTH_TOKEN_KEY = "findlostpeople.authToken";
 
 const tabs = [
   { id: "map", label: "실시간 지도", icon: MapPin },
@@ -29,6 +31,10 @@ const tabs = [
   { id: "stats", label: "통계", icon: BarChart3 },
   { id: "register", label: "보호자 등록", icon: UserRoundPlus },
 ];
+
+function getTabLabel(tab) {
+  return tab.id === "register" ? "실종자 등록" : tab.label;
+}
 
 const statsSections = [
   { id: "region", label: "지역 분석" },
@@ -289,6 +295,51 @@ function fetchJson(path, options) {
   });
 }
 
+function fetchAuthJson(path, token, options = {}) {
+  return fetchJson(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+function getPersonKey(person) {
+  return person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+}
+
+function sourceMatches(person, sourceFilter) {
+  if (sourceFilter === "all") return true;
+  if (sourceFilter === "local") return person.sourceType === "local";
+  return person.sourceType !== "local";
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("사진 파일을 읽지 못했습니다."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function resolvePhotoUrl(photoUrl) {
+  const value = String(photoUrl || "").trim();
+  if (!value) return "";
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("data:image/")
+  ) {
+    return value;
+  }
+  if (value.startsWith("/uploads/") && API_BASE) {
+    return `${API_BASE}${value}`;
+  }
+  return value;
+}
+
 function parseMissingDate(value) {
   if (!value) return null;
   const normalized = String(value).replace(" ", "T");
@@ -354,13 +405,16 @@ function formatShortDate(value) {
 function createMarkerContent(person) {
   const wrapper = document.createElement("button");
   wrapper.type = "button";
-  wrapper.className = `person-marker ${getMarkerBorderClass(person.missingAt)}`;
+  wrapper.className = `person-marker ${getMarkerBorderClass(person.missingAt)} ${
+    person.sourceType === "local" ? "local-marker" : ""
+  }`;
   wrapper.title = person.name || "실종자";
   wrapper.setAttribute("aria-label", `${person.name || "실종자"} 마커`);
 
-  if (person.photoUrl) {
+  const photoUrl = resolvePhotoUrl(person.photoUrl);
+  if (photoUrl) {
     const img = document.createElement("img");
-    img.src = person.photoUrl;
+    img.src = photoUrl;
     img.alt = `${person.name || "실종자"} 사진`;
     wrapper.appendChild(img);
   } else {
@@ -486,16 +540,42 @@ function App() {
   const [activeStatsSection, setActiveStatsSection] = useState("region");
   const [listSort, setListSort] = useState("recent");
   const [alerts, setAlerts] = useState([]);
+  const [localPeople, setLocalPeople] = useState([]);
   const [searchMapPeople, setSearchMapPeople] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authToken, setAuthToken] = useState(() =>
+    localStorage.getItem(AUTH_TOKEN_KEY) || "",
+  );
   const [error, setError] = useState("");
   const [stats, setStats] = useState([]);
   const [timeFilter, setTimeFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [hasEntered, setHasEntered] = useState(false);
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!authToken) {
+      setAuthLoading(false);
+      return;
+    }
+
+    fetchAuthJson("/api/auth/me", authToken)
+      .then((data) => {
+        setCurrentUser(data.user);
+        setHasEntered(true);
+      })
+      .catch(() => {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        setAuthToken("");
+        setCurrentUser(null);
+      })
+      .finally(() => setAuthLoading(false));
+  }, [authToken]);
 
   useEffect(() => {
     if (activeTab !== "map") return;
@@ -552,9 +632,27 @@ function App() {
     }
   };
 
+  const loadLocalPeople = useCallback(async () => {
+    if (!authToken) {
+      setLocalPeople([]);
+      return;
+    }
+
+    try {
+      const data = await fetchAuthJson("/api/local-missing", authToken);
+      setLocalPeople(data.items || []);
+    } catch (err) {
+      setLocalPeople([]);
+    }
+  }, [authToken]);
+
   useEffect(() => {
     loadAlerts();
   }, []);
+
+  useEffect(() => {
+    loadLocalPeople();
+  }, [loadLocalPeople]);
 
   useEffect(() => {
     fetchJson("/api/stats/regions?rowSize=80")
@@ -563,36 +661,30 @@ function App() {
   }, []);
 
   const mapAlerts = useMemo(() => {
-    const merged = [...alerts];
-    const seen = new Set(
-      merged.map(
-        (person) =>
-          person.id || `${person.name}:${person.missingAt}:${person.locationText}`,
-      ),
-    );
+    const merged = [
+      ...alerts.map((person) => ({ ...person, sourceType: person.sourceType || "official" })),
+      ...localPeople,
+    ];
+    const seen = new Set(merged.map(getPersonKey));
 
     searchMapPeople.forEach((person) => {
-      const key =
-        person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+      const key = getPersonKey(person);
       if (seen.has(key)) return;
       seen.add(key);
       merged.push(person);
     });
 
-    if (timeFilter === "all") return merged;
-    return merged.filter(
-      (person) => getMissingDateBucket(person.missingAt) === timeFilter,
-    );
-  }, [alerts, searchMapPeople, timeFilter]);
+    return merged.filter((person) => {
+      const matchesTime =
+        timeFilter === "all" || getMissingDateBucket(person.missingAt) === timeFilter;
+      return matchesTime && sourceMatches(person, sourceFilter);
+    });
+  }, [alerts, localPeople, searchMapPeople, timeFilter, sourceFilter]);
 
   const showSearchPersonOnMap = useCallback((person) => {
     setSearchMapPeople((current) => {
-      const key =
-        person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
-      const exists = current.some(
-        (item) =>
-          (item.id || `${item.name}:${item.missingAt}:${item.locationText}`) === key,
-      );
+      const key = getPersonKey(person);
+      const exists = current.some((item) => getPersonKey(item) === key);
       return exists ? current : [person, ...current];
     });
     setSelected(person);
@@ -622,7 +714,7 @@ function App() {
   }, []);
 
   const sortedSidebarAlerts = useMemo(() => {
-    const items = [...alerts];
+    const items = [...mapAlerts];
 
     return items.sort((a, b) => {
       if (listSort === "age") {
@@ -648,7 +740,7 @@ function App() {
       const dateB = parseMissingDate(b.missingAt)?.getTime() || 0;
       return dateB - dateA;
     });
-  }, [alerts, listSort]);
+  }, [mapAlerts, listSort]);
 
   useKakaoMap(
     mapContainerRef,
@@ -661,6 +753,49 @@ function App() {
   const locatedCount = mapAlerts.filter(
     (person) => person.lat && person.lng,
   ).length;
+
+  const handleAuthSuccess = ({ token, user }) => {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    setAuthToken(token);
+    setCurrentUser(user);
+    setHasEntered(true);
+  };
+
+  const handleLogout = async () => {
+    if (authToken) {
+      await fetchAuthJson("/api/auth/logout", authToken, { method: "POST" }).catch(
+        () => {},
+      );
+    }
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    setAuthToken("");
+    setCurrentUser(null);
+    setLocalPeople([]);
+    setHasEntered(false);
+  };
+
+  const handleLocalPersonCreated = (person) => {
+    setLocalPeople((current) => [person, ...current.filter((item) => item.id !== person.id)]);
+    setSelected(person);
+    setIsDetailOpen(true);
+    setSourceFilter("all");
+    setActiveTab("map");
+  };
+
+  if (authLoading) {
+    return (
+      <div className="welcome-screen">
+        <div className="welcome-card">
+          <Loader2 className="spin" size={28} />
+          <p>로그인 상태를 확인하고 있습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <AuthView onAuthSuccess={handleAuthSuccess} />;
+  }
 
   if (!hasEntered) {
     return <WelcomeView onContinue={() => setHasEntered(true)} />;
@@ -693,7 +828,7 @@ function App() {
                     onClick={() => setActiveTab(tab.id)}
                   >
                     <Icon size={18} aria-hidden="true" />
-                    <span>{tab.label}</span>
+                    <span>{getTabLabel(tab)}</span>
                   </button>
 
                   {activeTab === "stats" && (
@@ -729,7 +864,7 @@ function App() {
                 onClick={() => setActiveTab(tab.id)}
               >
                 <Icon size={18} aria-hidden="true" />
-                <span>{tab.label}</span>
+                <span>{getTabLabel(tab)}</span>
               </button>
             );
           })}
@@ -737,8 +872,16 @@ function App() {
 
         <div className="sidebar-spacer" />
 
+        <div className="user-box">
+          <span>{currentUser.name}</span>
+          <button className="reset-button" type="button" onClick={handleLogout}>
+            <LogOut size={15} />
+            로그아웃
+          </button>
+        </div>
+
         <AlertListPanel
-          alerts={alerts}
+          alerts={mapAlerts}
           loading={loading}
           sortedAlerts={sortedSidebarAlerts}
           listSort={listSort}
@@ -768,6 +911,8 @@ function App() {
             onRefresh={loadAlerts}
             timeFilter={timeFilter}
             onChangeTimeFilter={setTimeFilter}
+            sourceFilter={sourceFilter}
+            onChangeSourceFilter={setSourceFilter}
             onSelect={(person) => {
               toggleSelectedPerson(person);
             }}
@@ -794,7 +939,7 @@ function App() {
           <StatsView
             activeSection={activeStatsSection}
             stats={stats}
-            alerts={alerts}
+            alerts={mapAlerts}
           />
         </div>
 
@@ -803,7 +948,11 @@ function App() {
             activeTab === "register" ? "view-pane active" : "view-pane hidden"
           }
         >
-          <RegisterView />
+          <RegisterView
+            authToken={authToken}
+            onCreated={handleLocalPersonCreated}
+            onReload={loadLocalPeople}
+          />
         </div>
       </main>
     </div>
@@ -824,6 +973,8 @@ function MapView({
   onCloseDetail,
   timeFilter,
   onChangeTimeFilter,
+  sourceFilter,
+  onChangeSourceFilter,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [areaSearchError, setAreaSearchError] = useState("");
@@ -917,8 +1068,14 @@ function MapView({
           </label>
 
           <label className="status-filter">
-            <select value="all" onChange={() => {}}>
-              <option value="all">✓ 전체</option>
+            <select
+              value={sourceFilter}
+              onChange={(event) => onChangeSourceFilter(event.target.value)}
+              aria-label="데이터 출처 필터"
+            >
+              <option value="all">전체 출처</option>
+              <option value="official">공식 API</option>
+              <option value="local">직접 등록</option>
             </select>
           </label>
         </div>
@@ -1010,10 +1167,10 @@ function AlertListPanel({
             type="button"
             onClick={() => onSelect(person)}
           >
-            {person.photoUrl ? (
+            {resolvePhotoUrl(person.photoUrl) ? (
               <img
                 className="person-row-photo"
-                src={person.photoUrl}
+                src={resolvePhotoUrl(person.photoUrl)}
                 alt={`${person.name} 사진`}
               />
             ) : (
@@ -1033,6 +1190,7 @@ function AlertListPanel({
               <small>실종일 {formatShortDate(person.missingAt)}</small>
               <small>{person.locationText || "위치 정보 미제공"}</small>
               <span className="person-row-tags">
+                <em>{person.sourceType === "local" ? "직접 등록" : "공식 API"}</em>
                 <em>{person.lat && person.lng ? "위치 확인됨" : "위치 미확인"}</em>
                 {person.clothing && person.clothing !== "착의 정보 미제공" && (
                   <em>{person.clothing}</em>
@@ -1256,9 +1414,9 @@ function SearchView({ onSelect, setActiveTab }) {
           {results.map((person) => (
             <article key={person.id} className="result-card">
               <div className="card-left">
-                {person.photoUrl ? (
+                {resolvePhotoUrl(person.photoUrl) ? (
                   <img
-                    src={person.photoUrl}
+                    src={resolvePhotoUrl(person.photoUrl)}
                     alt={`${person.name} 사진`}
                     className="card-photo"
                   />
@@ -1582,6 +1740,133 @@ function getDemographicStats(alerts) {
   };
 }
 
+function AuthView({ onAuthSuccess }) {
+  const [mode, setMode] = useState("login");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+    setLoading(true);
+
+    try {
+      if (mode === "signup") {
+        const data = await fetchJson("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        setMessage(data.message || "회원가입이 완료되었습니다.");
+        setMode("login");
+        setForm((current) => ({ ...current, password: "" }));
+        return;
+      }
+
+      const data = await fetchJson("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+      onAuthSuccess(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-screen">
+      <section className="auth-panel" aria-labelledby="auth-title">
+        <div className="section-heading">
+          <div>
+            <h2 id="auth-title">
+              {mode === "login" ? "로그인" : "회원가입"}
+            </h2>
+            <p>직접 실종자를 등록하려면 계정으로 로그인해주세요.</p>
+          </div>
+        </div>
+
+        <div className="auth-tabs">
+          <button
+            className={mode === "login" ? "active" : ""}
+            type="button"
+            onClick={() => setMode("login")}
+          >
+            로그인
+          </button>
+          <button
+            className={mode === "signup" ? "active" : ""}
+            type="button"
+            onClick={() => setMode("signup")}
+          >
+            회원가입
+          </button>
+        </div>
+
+        <form className="auth-form" onSubmit={submit}>
+          {mode === "signup" && (
+            <label>
+              이름
+              <input
+                required
+                value={form.name}
+                onChange={(event) =>
+                  setForm({ ...form, name: event.target.value })
+                }
+              />
+            </label>
+          )}
+
+          <label>
+            이메일
+            <input
+              required
+              type="email"
+              value={form.email}
+              onChange={(event) =>
+                setForm({ ...form, email: event.target.value })
+              }
+            />
+          </label>
+
+          <label>
+            비밀번호
+            <input
+              required
+              type="password"
+              minLength={4}
+              value={form.password}
+              onChange={(event) =>
+                setForm({ ...form, password: event.target.value })
+              }
+            />
+          </label>
+
+          <button className="primary-button" type="submit" disabled={loading}>
+            {loading && <Loader2 className="spin" size={18} />}
+            {mode === "login" ? "로그인" : "회원가입"}
+          </button>
+        </form>
+
+        {message && <div className="success-box">{message}</div>}
+        {error && <div className="inline-error">{error}</div>}
+      </section>
+    </div>
+  );
+}
+
 function WelcomeView({ onContinue }) {
   return (
     <div className="welcome-screen">
@@ -1596,30 +1881,43 @@ function WelcomeView({ onContinue }) {
   );
 }
 
-function RegisterView() {
+function RegisterView({ authToken, onCreated, onReload }) {
   const [form, setForm] = useState({
     guardianName: "",
     guardianPhone: "",
     missingName: "",
+    age: "",
+    gender: "",
     missingAt: "",
     locationText: "",
     clothing: "",
     features: "",
+    height: "",
+    weight: "",
+    bodyType: "",
   });
 
+  const [photoFile, setPhotoFile] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
     setMessage("");
     setError("");
+    setSubmitting(true);
 
     try {
-      const data = await fetchJson("/api/guardian-reports", {
+      if (!photoFile) {
+        throw new Error("실종자 사진을 등록해주세요.");
+      }
+
+      const photoDataUrl = await fileToDataUrl(photoFile);
+      const data = await fetchAuthJson("/api/local-missing", authToken, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, photoDataUrl }),
       });
 
       setMessage(data.message);
@@ -1627,33 +1925,47 @@ function RegisterView() {
         guardianName: "",
         guardianPhone: "",
         missingName: "",
+        age: "",
+        gender: "",
         missingAt: "",
         locationText: "",
         clothing: "",
         features: "",
+        height: "",
+        weight: "",
+        bodyType: "",
       });
+      setPhotoFile(null);
+      onCreated?.(data.person);
+      onReload?.();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <section className="content-view" aria-labelledby="register-title">
+      <div className="local-register-note">
+        <strong>실종자 등록</strong>
+        <span>등록이 완료되면 공식 API 데이터와 분리된 직접 등록 데이터로 지도에 표시됩니다.</span>
+      </div>
       <div className="section-heading">
-        <h2 id="register-title">보호자 등록 요청</h2>
-        <p>등록 요청은 검토 대기 상태로 저장되며 즉시 공개되지 않습니다.</p>
+        <h2 id="register-title">실종자 등록</h2>
+        <p>직접 등록한 실종자 정보는 공식 API와 분리되어 저장되고 지도에 표시됩니다.</p>
       </div>
 
       <div className="review-flow">
-        <span className="active">보호자 입력</span>
-        <span>인증 확인</span>
-        <span>관리자 검토</span>
-        <span>공개 승인</span>
+        <span className="active">정보 입력</span>
+        <span>사진 등록</span>
+        <span>위치 변환</span>
+        <span>지도 표시</span>
       </div>
 
       <form className="register-form" onSubmit={submit}>
         {[
-          ["guardianName", "보호자 이름"],
+          ["guardianName", "등록자 이름"],
           ["guardianPhone", "보호자 연락처"],
           ["missingName", "실종자 이름"],
           ["missingAt", "실종 일시"],
@@ -1664,6 +1976,7 @@ function RegisterView() {
           <label key={key}>
             {label}
             <input
+              required={["guardianPhone", "missingName", "missingAt", "locationText"].includes(key)}
               value={form[key]}
               onChange={(event) =>
                 setForm({ ...form, [key]: event.target.value })
@@ -1672,9 +1985,66 @@ function RegisterView() {
           </label>
         ))}
 
-        <button className="primary-button" type="submit">
-          <ShieldCheck size={18} />
-          검토 요청 접수
+        <label>
+          나이
+          <input
+            inputMode="numeric"
+            value={form.age}
+            onChange={(event) => setForm({ ...form, age: event.target.value })}
+          />
+        </label>
+
+        <label>
+          성별
+          <select
+            value={form.gender}
+            onChange={(event) => setForm({ ...form, gender: event.target.value })}
+          >
+            <option value="">미상</option>
+            <option value="남성">남성</option>
+            <option value="여성">여성</option>
+          </select>
+        </label>
+
+        <label>
+          키(cm)
+          <input
+            inputMode="numeric"
+            value={form.height}
+            onChange={(event) => setForm({ ...form, height: event.target.value })}
+          />
+        </label>
+
+        <label>
+          몸무게(kg)
+          <input
+            inputMode="numeric"
+            value={form.weight}
+            onChange={(event) => setForm({ ...form, weight: event.target.value })}
+          />
+        </label>
+
+        <label>
+          체형
+          <input
+            value={form.bodyType}
+            onChange={(event) => setForm({ ...form, bodyType: event.target.value })}
+          />
+        </label>
+
+        <label>
+          실종자 사진
+          <input
+            required
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => setPhotoFile(event.target.files?.[0] || null)}
+          />
+        </label>
+
+        <button className="primary-button" type="submit" disabled={submitting}>
+          {submitting ? <Loader2 className="spin" size={18} /> : <ShieldCheck size={18} />}
+          실종자 등록
         </button>
       </form>
 
@@ -1714,6 +2084,12 @@ function PersonDetail({ person }) {
       </dl>
 
       <div className="action-row">
+        {person.sourceType === "local" && (
+          <a className="call-link" href={`tel:${person.guardianPhone || ""}`}>
+            <Phone size={16} />
+            {person.guardianPhone || "보호자 연락처 없음"}
+          </a>
+        )}
         <a
           className="primary-link"
           href={person.sourceUrl || "https://www.safe182.go.kr/"}
@@ -1758,14 +2134,14 @@ function PersonSummary({ person, large = false }) {
 
   return (
     <div className={large ? "person-summary large" : "person-summary"}>
-      {person.photoUrl ? (
-        <img src={person.photoUrl} alt={`${person.name} 사진`} />
+      {resolvePhotoUrl(person.photoUrl) ? (
+        <img src={resolvePhotoUrl(person.photoUrl)} alt={`${person.name} 사진`} />
       ) : (
         <div className="avatar">{initials}</div>
       )}
 
       <div>
-        <p>{person.status === "official" ? "공식 경보" : person.status}</p>
+        <p>{person.sourceType === "local" ? "직접 등록" : "공식 경보"}</p>
         <h3>{person.name}</h3>
         <span>
           {person.gender} · 현재 {person.age}세

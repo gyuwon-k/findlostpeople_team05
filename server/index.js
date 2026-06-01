@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import syncFs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import cors from "cors";
@@ -11,14 +12,18 @@ import {
   collectMissingDisasterMessages,
   fetchMissingDisasterMessages
 } from "./lib/disasterMessages.js";
-import { enrichWithCoordinates } from "./lib/kakao.js";
+import { enrichWithCoordinates, geocodeAddress } from "./lib/kakao.js";
 import { extractRegion, summarizeRegions } from "./lib/normalize.js";
 import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, "data");
 const reportPath = path.join(dataDir, "guardian-reports.local.json");
+const usersPath = path.join(dataDir, "users.local.json");
+const sessionsPath = path.join(dataDir, "sessions.local.json");
+const localMissingPath = path.join(dataDir, "local-missing.local.json");
 const disasterCachePath = path.join(dataDir, "disaster-missing-cache.json");
+const uploadsDir = path.join(__dirname, "uploads");
 
 const app = express();
 
@@ -55,7 +60,9 @@ function loadEnvFile() {
   }
 }
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.has(origin)) {
@@ -65,11 +72,128 @@ app.use(cors({
     callback(new Error(`CORS origin is not allowed: ${origin}`));
   }
 }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "12mb" }));
 app.use(morgan("dev"));
+app.use("/uploads", express.static(uploadsDir));
 
 function asyncRoute(handler) {
   return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+}
+
+async function readJsonFile(filePath, fallback = []) {
+  try {
+    const parsed = JSON.parse(await fs.readFile(filePath, "utf8"));
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function writeJsonFile(filePath, data) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+}
+
+function publicUser(user) {
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt
+  };
+}
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
+  const hash = crypto
+    .pbkdf2Sync(String(password), salt, 100000, 64, "sha512")
+    .toString("hex");
+  return { salt, hash };
+}
+
+function verifyPassword(password, user) {
+  if (!user?.passwordSalt || !user?.passwordHash) return false;
+  const { hash } = hashPassword(password, user.passwordSalt);
+  return crypto.timingSafeEqual(
+    Buffer.from(hash, "hex"),
+    Buffer.from(user.passwordHash, "hex")
+  );
+}
+
+function createToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+function getBearerToken(req) {
+  const header = req.headers.authorization || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] || "";
+}
+
+async function getSessionUser(req) {
+  const token = getBearerToken(req);
+  if (!token) return null;
+
+  const [sessions, users] = await Promise.all([
+    readJsonFile(sessionsPath),
+    readJsonFile(usersPath)
+  ]);
+  const session = sessions.find((item) => item.token === token);
+  if (!session) return null;
+
+  const user = users.find((item) => item.id === session.userId);
+  return user ? { user, session } : null;
+}
+
+function requireAuth(handler) {
+  return asyncRoute(async (req, res) => {
+    const auth = await getSessionUser(req);
+    if (!auth) {
+      return res.status(401).json({
+        code: "UNAUTHORIZED",
+        message: "로그인이 필요합니다."
+      });
+    }
+    req.user = auth.user;
+    req.session = auth.session;
+    return handler(req, res);
+  });
+}
+
+function requireFields(body, fields) {
+  const missing = fields.filter((key) => !String(body[key] || "").trim());
+  if (missing.length) {
+    const error = new Error("필수 항목을 입력해주세요.");
+    error.status = 400;
+    error.code = "VALIDATION_ERROR";
+    error.fields = missing;
+    throw error;
+  }
+}
+
+async function savePhotoDataUrl(photoDataUrl, id) {
+  const text = String(photoDataUrl || "");
+  const match = text.match(/^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/i);
+  if (!match) {
+    const error = new Error("사진 파일은 png, jpg, webp 형식만 등록할 수 있습니다.");
+    error.status = 400;
+    error.code = "INVALID_PHOTO";
+    throw error;
+  }
+
+  const ext = match[1].toLowerCase().replace("jpeg", "jpg");
+  const buffer = Buffer.from(match[2], "base64");
+  if (buffer.length > 8 * 1024 * 1024) {
+    const error = new Error("사진 파일은 8MB 이하만 등록할 수 있습니다.");
+    error.status = 400;
+    error.code = "PHOTO_TOO_LARGE";
+    throw error;
+  }
+
+  await fs.mkdir(uploadsDir, { recursive: true });
+  const fileName = `${id}.${ext}`;
+  await fs.writeFile(path.join(uploadsDir, fileName), buffer);
+  return `/uploads/${fileName}`;
 }
 
 function readQuery(req) {
@@ -291,12 +415,163 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.post("/api/auth/signup", asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  requireFields(body, ["name", "email", "password"]);
+
+  const email = String(body.email).trim().toLowerCase();
+  const password = String(body.password);
+  if (password.length < 4) {
+    return res.status(400).json({
+      code: "WEAK_PASSWORD",
+      message: "비밀번호는 4자 이상 입력해주세요."
+    });
+  }
+
+  const users = await readJsonFile(usersPath);
+  if (users.some((user) => user.email === email)) {
+    return res.status(409).json({
+      code: "EMAIL_EXISTS",
+      message: "이미 가입된 이메일입니다."
+    });
+  }
+
+  const passwordData = hashPassword(password);
+  const user = {
+    id: `user-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+    name: String(body.name).trim(),
+    email,
+    passwordSalt: passwordData.salt,
+    passwordHash: passwordData.hash,
+    createdAt: new Date().toISOString()
+  };
+
+  users.push(user);
+  await writeJsonFile(usersPath, users);
+
+  res.status(201).json({
+    user: publicUser(user),
+    message: "회원가입이 완료되었습니다. 로그인해주세요."
+  });
+}));
+
+app.post("/api/auth/login", asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  requireFields(body, ["email", "password"]);
+
+  const email = String(body.email).trim().toLowerCase();
+  const users = await readJsonFile(usersPath);
+  const user = users.find((item) => item.email === email);
+  if (!user || !verifyPassword(String(body.password), user)) {
+    return res.status(401).json({
+      code: "LOGIN_FAILED",
+      message: "이메일 또는 비밀번호가 올바르지 않습니다."
+    });
+  }
+
+  const sessions = await readJsonFile(sessionsPath);
+  const session = {
+    token: createToken(),
+    userId: user.id,
+    createdAt: new Date().toISOString()
+  };
+  sessions.push(session);
+  await writeJsonFile(sessionsPath, sessions);
+
+  res.json({
+    token: session.token,
+    user: publicUser(user)
+  });
+}));
+
+app.get("/api/auth/me", requireAuth(async (req, res) => {
+  res.json({ user: publicUser(req.user) });
+}));
+
+app.post("/api/auth/logout", requireAuth(async (req, res) => {
+  const sessions = await readJsonFile(sessionsPath);
+  await writeJsonFile(
+    sessionsPath,
+    sessions.filter((session) => session.token !== req.session.token)
+  );
+  res.json({ ok: true });
+}));
+
 app.get("/api/missing/alerts", asyncRoute(async (req, res) => {
   const people = await getAlerts(readQuery(req));
   res.json({
     source: "safe182",
     count: people.length,
     items: people
+  });
+}));
+
+app.get("/api/local-missing", requireAuth(async (req, res) => {
+  const people = await readJsonFile(localMissingPath);
+  res.json({
+    source: "local",
+    count: people.length,
+    items: people
+  });
+}));
+
+app.post("/api/local-missing", requireAuth(async (req, res) => {
+  const body = req.body || {};
+  requireFields(body, [
+    "missingName",
+    "guardianPhone",
+    "missingAt",
+    "locationText",
+    "photoDataUrl"
+  ]);
+
+  if (!config.kakaoRestKey) {
+    return res.status(400).json({
+      code: "KAKAO_KEY_MISSING",
+      message: "KAKAO_REST_API_KEY가 없어 주소를 지도 좌표로 변환할 수 없습니다."
+    });
+  }
+
+  const coordinates = await geocodeAddress(body.locationText, config.kakaoRestKey);
+  if (!coordinates) {
+    return res.status(400).json({
+      code: "GEOCODE_FAILED",
+      message: "입력한 위치를 지도에서 찾지 못했습니다. 주소나 장소명을 더 구체적으로 입력해주세요."
+    });
+  }
+
+  const id = `local-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+  const photoUrl = await savePhotoDataUrl(body.photoDataUrl, id);
+  const previous = await readJsonFile(localMissingPath);
+  const person = {
+    id,
+    name: String(body.missingName || "").trim(),
+    age: String(body.age || "").trim() || "미상",
+    gender: String(body.gender || "").trim() || "미상",
+    missingAt: String(body.missingAt || "").trim(),
+    locationText: String(body.locationText || "").trim(),
+    lat: coordinates.lat,
+    lng: coordinates.lng,
+    clothing: String(body.clothing || "").trim() || "착의 정보 미제공",
+    features: String(body.features || "").trim() || "특징 정보 미제공",
+    height: String(body.height || "").trim(),
+    weight: String(body.weight || "").trim(),
+    bodyType: String(body.bodyType || "").trim(),
+    guardianName: String(body.guardianName || "").trim(),
+    guardianPhone: String(body.guardianPhone || "").trim(),
+    photoUrl,
+    status: "local_registered",
+    sourceType: "local",
+    createdBy: req.user.id,
+    createdAt: new Date().toISOString()
+  };
+
+  previous.unshift(person);
+  await writeJsonFile(localMissingPath, previous);
+
+  res.status(201).json({
+    person,
+    message: "실종자 등록이 완료되어 지도에 표시됩니다."
   });
 }));
 
