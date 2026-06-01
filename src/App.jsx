@@ -487,6 +487,7 @@ function App() {
   const [listSort, setListSort] = useState("recent");
   const [alerts, setAlerts] = useState([]);
   const [searchMapPeople, setSearchMapPeople] = useState([]);
+  const [disasterStatsAlerts, setDisasterStatsAlerts] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -561,6 +562,30 @@ function App() {
       .then((data) => setStats(data.regions || []))
       .catch(() => setStats([]));
   }, []);
+
+  useEffect(() => {
+    fetchJson("/api/disaster-missing/messages")
+      .then((data) => setDisasterStatsAlerts(data.items || []))
+      .catch(() => setDisasterStatsAlerts([]));
+  }, []);
+
+  const statsAlerts = useMemo(
+    () => mergePeopleForView(alerts, disasterStatsAlerts),
+    [alerts, disasterStatsAlerts],
+  );
+
+  const statsRegions = useMemo(() => {
+    const regionCounts = new Map();
+
+    statsAlerts.forEach((person) => {
+      const region = getDisplayRegion(person.locationText);
+      regionCounts.set(region, (regionCounts.get(region) || 0) + 1);
+    });
+
+    return [...regionCounts.entries()]
+      .map(([region, count]) => ({ region, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [statsAlerts]);
 
   const mapAlerts = useMemo(() => {
     const merged = [...alerts];
@@ -793,8 +818,8 @@ function App() {
         >
           <StatsView
             activeSection={activeStatsSection}
-            stats={stats}
-            alerts={alerts}
+            stats={statsRegions.length ? statsRegions : stats}
+            alerts={statsAlerts.length ? statsAlerts : alerts}
           />
         </div>
 
@@ -1241,6 +1266,13 @@ function SearchView({ onSelect, setActiveTab }) {
               전체 수집
             </button>
           </div>
+          <a
+            className="reset-button csv-download-link"
+            href="/disaster-missing-messages.csv"
+            download
+          >
+            CSV 다운로드
+          </a>
         </div>
       </div>
 
@@ -1351,13 +1383,41 @@ function SearchView({ onSelect, setActiveTab }) {
   );
 }
 
+function mergePeopleForView(primary, secondary) {
+  const seen = new Set();
+  const merged = [];
+
+  [...primary, ...secondary].forEach((person) => {
+    const key =
+      person.id || `${person.name}:${person.missingAt}:${person.locationText}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(person);
+  });
+
+  return merged;
+}
+
+function getDisplayRegion(locationText) {
+  const value = String(locationText || "").trim();
+  if (!value) return "지역 미상";
+
+  const knownProvince = Object.keys(regionGroups).find((province) =>
+    value.includes(province),
+  );
+  if (knownProvince) return knownProvince;
+
+  const firstToken = value.split(/\s+/)[0];
+  return firstToken || "지역 미상";
+}
+
 function StatsView({ activeSection, stats, alerts }) {
   const max = Math.max(1, ...stats.map((item) => item.count));
   const topRegion = stats[0]?.region || "집계 대기";
   const activeStatsTitle =
     statsSections.find((section) => section.id === activeSection)?.label ||
     "지역 분석";
-  const timeStats = getTimeStats(alerts);
+  const monthlyStats = getMonthlyStats(alerts);
   const demographicStats = getDemographicStats(alerts);
 
   return (
@@ -1405,24 +1465,12 @@ function StatsView({ activeSection, stats, alerts }) {
         {activeSection === "time" && (
           <>
             <div className="status-row wide">
-              <Metric label="최근 7일" value={timeStats.week} />
-              <Metric label="1개월 이내" value={timeStats.month} />
-              <Metric label="1년 이내" value={timeStats.year} />
+              <Metric label="?? ??" value={monthlyStats.periodLabel} />
+              <Metric label="?? ???" value={monthlyStats.peakLabel} />
+              <Metric label="???" value={monthlyStats.average} />
             </div>
 
-            <StatsBars
-              max={timeStats.max}
-              rows={[
-                ["최근 7일", timeStats.week],
-                ["1개월 이내", timeStats.month],
-                ["1년 이내", timeStats.year],
-                ["3년 이내", timeStats.threeYears],
-                ["5년 이내", timeStats.fiveYears],
-                ["10년 이내", timeStats.tenYears],
-                ["10년 초과", timeStats.overTenYears],
-                ["날짜 미상", timeStats.unknown],
-              ]}
-            />
+            <MonthlyTrendChart rows={monthlyStats.rows} max={monthlyStats.max} />
           </>
         )}
 
@@ -1436,25 +1484,26 @@ function StatsView({ activeSection, stats, alerts }) {
 
             <div className="stats-split-grid">
               <div>
-                <h4>성별 분포</h4>
-                <StatsBars
-                  max={demographicStats.gender.max}
+                <h4>?? ??</h4>
+                <DonutChart
                   rows={[
-                    ["남성", demographicStats.gender.male],
-                    ["여성", demographicStats.gender.female],
-                    ["미상", demographicStats.gender.unknown],
+                    ["??", demographicStats.gender.male],
+                    ["??", demographicStats.gender.female],
+                    ["??", demographicStats.gender.unknown],
                   ]}
+                  colors={["#2a9d8f", "#e76f51", "#8fa6a0"]}
                 />
               </div>
 
               <div>
-                <h4>연령대 분포</h4>
-                <StatsBars
-                  max={demographicStats.age.max}
+                <h4>??? ??</h4>
+                <DonutChart
                   rows={demographicStats.age.rows}
+                  colors={["#2878a8", "#74b566", "#e9b44c", "#d85c3a", "#8fa6a0"]}
                 />
               </div>
             </div>
+
           </>
         )}
 
@@ -1482,6 +1531,78 @@ function StatsBars({ rows, max }) {
   );
 }
 
+function DonutChart({ rows, colors }) {
+  const total = rows.reduce((sum, [, value]) => sum + value, 0);
+  let cursor = 0;
+  const segments =
+    total > 0
+      ? rows
+          .map(([, value], index) => {
+            const start = cursor;
+            const size = (value / total) * 100;
+            cursor += size;
+            return `${colors[index % colors.length]} ${start}% ${cursor}%`;
+          })
+          .join(", ")
+      : "#e8efec 0% 100%";
+
+  return (
+    <div className="donut-chart-card">
+      <div
+        className="donut-chart"
+        style={{ background: `conic-gradient(${segments})` }}
+        aria-label="분포 원그래프"
+      >
+        <div>
+          <strong>{total}</strong>
+          <span>건</span>
+        </div>
+      </div>
+
+      <div className="donut-legend">
+        {rows.map(([label, value], index) => {
+          const percent = total ? Math.round((value / total) * 100) : 0;
+          return (
+            <div className="donut-legend-row" key={label}>
+              <i style={{ background: colors[index % colors.length] }} />
+              <span>{label}</span>
+              <strong>
+                {value}건 · {percent}%
+              </strong>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MonthlyTrendChart({ rows, max }) {
+  return (
+    <div className="monthly-chart" aria-label="월별 실종 관련 문자 추이">
+      <div className="monthly-y-axis">
+        <span>{max}</span>
+        <span>{Math.round(max / 2)}</span>
+        <span>0</span>
+      </div>
+      <div className="monthly-bars">
+        {rows.map((row) => (
+          <div className="monthly-bar-item" key={row.key}>
+            <div className="monthly-bar-track">
+              <div
+                className="monthly-bar-fill"
+                style={{ height: `${max ? (row.count / max) * 100 : 0}%` }}
+                title={`${row.label}: ${row.count}건`}
+              />
+            </div>
+            <span>{row.shortLabel}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function getStatsDescription(activeSection) {
   if (activeSection === "time") {
     return "실종 발생 시점을 기준으로 최근 경보와 장기 경보를 구분합니다.";
@@ -1492,49 +1613,54 @@ function getStatsDescription(activeSection) {
   return "공식 API 조회 결과를 지역 단위로 집계합니다.";
 }
 
-function getTimeStats(alerts) {
-  const counts = {
-    week: 0,
-    month: 0,
-    year: 0,
-    threeYears: 0,
-    fiveYears: 0,
-    tenYears: 0,
-    overTenYears: 0,
-    unknown: 0,
-  };
+function getMonthlyStats(alerts) {
+  const start = new Date(2023, 8, 1);
+  const end = new Date(2026, 4, 1);
+  const counts = new Map();
+  const rows = [];
+
+  for (
+    const cursor = new Date(start);
+    cursor <= end;
+    cursor.setMonth(cursor.getMonth() + 1)
+  ) {
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
+    counts.set(key, 0);
+  }
 
   alerts.forEach((person) => {
     const date = parseMissingDate(person.missingAt);
-    if (!date) {
-      counts.unknown += 1;
+    if (!date || date < start || date > new Date(2026, 4, 31, 23, 59, 59)) {
       return;
     }
 
-    const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (diffDays <= 7) counts.week += 1;
-    else if (diffDays <= 30) counts.month += 1;
-    else if (diffDays <= 365) counts.year += 1;
-    else if (diffDays <= 365 * 3) counts.threeYears += 1;
-    else if (diffDays <= 365 * 5) counts.fiveYears += 1;
-    else if (diffDays <= 365 * 10) counts.tenYears += 1;
-    else counts.overTenYears += 1;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
   });
 
+  counts.forEach((count, key) => {
+    const [year, month] = key.split("-");
+    rows.push({
+      key,
+      count,
+      label: `${year}년 ${Number(month)}월`,
+      shortLabel: month === "01" ? `${year.slice(2)}.${month}` : month,
+    });
+  });
+
+  const max = Math.max(1, ...rows.map((row) => row.count));
+  const peak = rows.reduce(
+    (current, row) => (row.count > current.count ? row : current),
+    rows[0] || { label: "-", count: 0 },
+  );
+  const total = rows.reduce((sum, row) => sum + row.count, 0);
+
   return {
-    ...counts,
-    max: Math.max(
-      1,
-      counts.week,
-      counts.month,
-      counts.year,
-      counts.threeYears,
-      counts.fiveYears,
-      counts.tenYears,
-      counts.overTenYears,
-      counts.unknown,
-    ),
+    rows,
+    max,
+    periodLabel: "2023.09~2026.05",
+    peakLabel: `${peak.label} ${peak.count}건`,
+    average: `${Math.round(total / Math.max(1, rows.length))}건`,
   };
 }
 
