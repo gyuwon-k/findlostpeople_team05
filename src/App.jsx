@@ -5,8 +5,10 @@ import {
   CalendarClock,
   CheckCircle2,
   FileSearch,
+  Home,
   Loader2,
   LogOut,
+  Mail,
   MapPin,
   MapPinned,
   Phone,
@@ -15,21 +17,31 @@ import {
   ShieldCheck,
   Shirt,
   Sparkles,
+  UserCircle,
   UserRoundPlus,
   Weight,
 } from "lucide-react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE = "";
 const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY || "";
 const KNU_CENTER = { lat: 35.8908, lng: 128.6111 };
 const ALERT_ROW_SIZE = 100;
 const AUTH_TOKEN_KEY = "findlostpeople.authToken";
+const MISSING_MESSAGE_KEYWORDS = [
+  "실종",
+  "배회",
+  "미귀가",
+  "찾습니다",
+  "발견시",
+  "보호중",
+];
 
 const tabs = [
   { id: "map", label: "실시간 지도", icon: MapPin },
   { id: "search", label: "실종자 검색", icon: Search },
   { id: "stats", label: "통계", icon: BarChart3 },
   { id: "register", label: "보호자 등록", icon: UserRoundPlus },
+  { id: "mypage", label: "마이페이지", icon: UserCircle },
 ];
 
 function getTabLabel(tab) {
@@ -337,6 +349,39 @@ function sourceMatches(person, sourceFilter) {
   return person.sourceType !== "local";
 }
 
+function getSourceLabel(person) {
+  if (person.sourceType === "local") return "직접 등록";
+  if (person.status === "disaster-message") return "실종 문자경보";
+  if (person.sourceLabel) return person.sourceLabel;
+  return "공식 API";
+}
+
+function isMissingMessageAlert(person) {
+  if (person.status !== "disaster-message") return true;
+
+  const name = String(person.name || "").trim();
+  const hasName = Boolean(
+    name && !name.includes("미상") && !name.includes("誘몄긽"),
+  );
+  if (!hasName) return false;
+
+  const text = [
+    person.name,
+    person.clothing,
+    person.features,
+    person.locationText,
+  ].join(" ");
+
+  return MISSING_MESSAGE_KEYWORDS.some((keyword) => text.includes(keyword));
+}
+
+function getUserMapCenter(user) {
+  const lat = Number(user?.lat);
+  const lng = Number(user?.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+  return null;
+}
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -455,22 +500,34 @@ function useKakaoMap(
   people,
   onSelect,
   isVisible,
+  preferredCenter,
 ) {
   const markersRef = useRef([]);
+  const hasCenteredRef = useRef(false);
+  const hasFittedMarkersRef = useRef(false);
   const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!KAKAO_JS_KEY || !isVisible || !container) return;
+    let cancelled = false;
 
     function createMap(targetContainer) {
-      if (!targetContainer || instanceRef.current) return;
+      if (cancelled || !targetContainer || instanceRef.current) return;
+
+      targetContainer.innerHTML = "";
 
       instanceRef.current = new window.kakao.maps.Map(targetContainer, {
         center: new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
         level: 6,
       });
 
+      window.setTimeout(() => {
+        if (!instanceRef.current) return;
+        instanceRef.current?.relayout?.();
+      }, 0);
+
+      hasCenteredRef.current = false;
       setMapReady(true);
     }
 
@@ -488,10 +545,34 @@ function useKakaoMap(
     document.head.appendChild(script);
 
     return () => {
+      cancelled = true;
       markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
+      instanceRef.current = null;
+      hasCenteredRef.current = false;
+      hasFittedMarkersRef.current = false;
+      if (container) container.innerHTML = "";
+      setMapReady(false);
     };
   }, [containerRef, instanceRef, isVisible]);
+
+  useEffect(() => {
+    if (
+      !mapReady ||
+      !preferredCenter ||
+      !instanceRef.current ||
+      !window.kakao?.maps ||
+      hasCenteredRef.current
+    ) {
+      return;
+    }
+
+    instanceRef.current.setCenter(
+      new window.kakao.maps.LatLng(preferredCenter.lat, preferredCenter.lng),
+    );
+    instanceRef.current.relayout?.();
+    hasCenteredRef.current = true;
+  }, [mapReady, preferredCenter, instanceRef]);
 
   useEffect(() => {
     if (!mapReady || !instanceRef.current || !window.kakao?.maps) return;
@@ -500,6 +581,7 @@ function useKakaoMap(
     markersRef.current = [];
 
     const visible = people.filter((person) => person.lat && person.lng);
+    hasFittedMarkersRef.current = false;
 
     visible.forEach((person) => {
       const position = new window.kakao.maps.LatLng(person.lat, person.lng);
@@ -517,44 +599,24 @@ function useKakaoMap(
       markersRef.current.push(marker);
     });
 
-    if (visible.length > 0) {
-      const hasNearby = visible.some((person) => {
-        const latDiff = Math.abs(person.lat - KNU_CENTER.lat);
-        const lngDiff = Math.abs(person.lng - KNU_CENTER.lng);
-        return latDiff <= 0.25 && lngDiff <= 0.25;
+    if (visible.length > 0 && !hasFittedMarkersRef.current) {
+      const bounds = new window.kakao.maps.LatLngBounds();
+
+      visible.forEach((person) => {
+        bounds.extend(new window.kakao.maps.LatLng(person.lat, person.lng));
       });
 
-      if (hasNearby) {
-        const nearbyBounds = new window.kakao.maps.LatLngBounds();
-
-        visible.forEach((person) => {
-          const latDiff = Math.abs(person.lat - KNU_CENTER.lat);
-          const lngDiff = Math.abs(person.lng - KNU_CENTER.lng);
-
-          if (latDiff <= 0.25 && lngDiff <= 0.25) {
-            nearbyBounds.extend(
-              new window.kakao.maps.LatLng(person.lat, person.lng),
-            );
-          }
-        });
-
-        nearbyBounds.extend(
-          new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
+      if (preferredCenter) {
+        bounds.extend(
+          new window.kakao.maps.LatLng(preferredCenter.lat, preferredCenter.lng),
         );
-        instanceRef.current.setBounds(nearbyBounds);
-      } else {
-        instanceRef.current.setCenter(
-          new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
-        );
-        instanceRef.current.setLevel(6);
       }
-    } else {
-      instanceRef.current.setCenter(
-        new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
-      );
-      instanceRef.current.setLevel(6);
+
+      instanceRef.current.setBounds(bounds);
+      instanceRef.current.relayout?.();
+      hasFittedMarkersRef.current = true;
     }
-  }, [people, onSelect, mapReady, instanceRef]);
+  }, [people, onSelect, mapReady, instanceRef, preferredCenter]);
 }
 
 function App() {
@@ -565,6 +627,8 @@ function App() {
   const [localPeople, setLocalPeople] = useState([]);
   const [searchMapPeople, setSearchMapPeople] = useState([]);
   const [disasterStatsAlerts, setDisasterStatsAlerts] = useState([]);
+  const [mapDisasterPeople, setMapDisasterPeople] = useState([]);
+  const [mapDisasterLoading, setMapDisasterLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -685,9 +749,52 @@ function App() {
 
   useEffect(() => {
     fetchJson("/api/disaster-missing/messages")
-      .then((data) => setDisasterStatsAlerts(data.items || []))
+      .then((data) =>
+        setDisasterStatsAlerts((data.items || []).filter(isMissingMessageAlert)),
+      )
       .catch(() => setDisasterStatsAlerts([]));
   }, []);
+
+  const userMapCenter = useMemo(() => getUserMapCenter(currentUser), [currentUser]);
+
+  const loadMapDisasterPeople = useCallback(
+    async () => {
+      if (!authToken) {
+        setMapDisasterPeople([]);
+        return;
+      }
+
+      const params = new URLSearchParams({
+        limit: "30",
+        candidateLimit: "120",
+        geocodeLimit: "30",
+      });
+
+      if (currentUser?.lat && currentUser?.lng) {
+        params.set("lat", String(currentUser.lat));
+        params.set("lng", String(currentUser.lng));
+      }
+
+      setMapDisasterLoading(true);
+      try {
+        const data = await fetchAuthJson(
+          `/api/missing/map-disaster?${params.toString()}`,
+          authToken,
+        );
+        setMapDisasterPeople((data.items || []).filter(isMissingMessageAlert));
+      } catch (err) {
+        setMapDisasterPeople([]);
+      } finally {
+        setMapDisasterLoading(false);
+      }
+    },
+    [authToken, currentUser],
+  );
+
+  useEffect(() => {
+    if (!authToken) return;
+    loadMapDisasterPeople();
+  }, [loadMapDisasterPeople]);
 
   const statsAlerts = useMemo(
     () => mergePeopleForView(alerts, disasterStatsAlerts),
@@ -709,7 +816,7 @@ function App() {
 
   const mapAlerts = useMemo(() => {
     const merged = [
-      ...alerts.map((person) => ({ ...person, sourceType: person.sourceType || "official" })),
+      ...mapDisasterPeople,
       ...localPeople,
     ];
     const seen = new Set(merged.map(getPersonKey));
@@ -726,7 +833,17 @@ function App() {
         timeFilter === "all" || getMissingDateBucket(person.missingAt) === timeFilter;
       return matchesTime && sourceMatches(person, sourceFilter);
     });
-  }, [alerts, localPeople, searchMapPeople, timeFilter, sourceFilter]);
+  }, [mapDisasterPeople, localPeople, searchMapPeople, timeFilter, sourceFilter]);
+
+  const sidebarAlerts = useMemo(() => {
+    const merged = mergePeopleForView(disasterStatsAlerts, mapAlerts);
+
+    return merged.filter((person) => {
+      const matchesTime =
+        timeFilter === "all" || getMissingDateBucket(person.missingAt) === timeFilter;
+      return matchesTime && sourceMatches(person, sourceFilter);
+    });
+  }, [disasterStatsAlerts, mapAlerts, timeFilter, sourceFilter]);
 
   const showSearchPersonOnMap = useCallback((person) => {
     setSearchMapPeople((current) => {
@@ -761,7 +878,7 @@ function App() {
   }, []);
 
   const sortedSidebarAlerts = useMemo(() => {
-    const items = [...mapAlerts];
+    const items = [...sidebarAlerts];
 
     return items.sort((a, b) => {
       if (listSort === "age") {
@@ -787,7 +904,7 @@ function App() {
       const dateB = parseMissingDate(b.missingAt)?.getTime() || 0;
       return dateB - dateA;
     });
-  }, [mapAlerts, listSort]);
+  }, [sidebarAlerts, listSort]);
 
   useKakaoMap(
     mapContainerRef,
@@ -795,6 +912,7 @@ function App() {
     mapAlerts,
     toggleSelectedPerson,
     hasEntered,
+    userMapCenter,
   );
 
   const locatedCount = mapAlerts.filter(
@@ -921,6 +1039,14 @@ function App() {
 
         <div className="user-box">
           <span>{currentUser.name}</span>
+          <button
+            className="reset-button"
+            type="button"
+            onClick={() => setActiveTab("mypage")}
+          >
+            <UserCircle size={15} />
+            내정보
+          </button>
           <button className="reset-button" type="button" onClick={handleLogout}>
             <LogOut size={15} />
             로그아웃
@@ -928,7 +1054,7 @@ function App() {
         </div>
 
         <AlertListPanel
-          alerts={mapAlerts}
+          alerts={sidebarAlerts}
           loading={loading}
           sortedAlerts={sortedSidebarAlerts}
           listSort={listSort}
@@ -950,7 +1076,9 @@ function App() {
             alerts={mapAlerts}
             error={error}
             loading={loading}
+            mapDisasterLoading={mapDisasterLoading}
             locatedCount={locatedCount}
+            userMapCenter={userMapCenter}
             mapRef={mapContainerRef}
             mapInstanceRef={mapInstanceRef}
             selected={selected}
@@ -1001,6 +1129,19 @@ function App() {
             onReload={loadLocalPeople}
           />
         </div>
+
+        <div
+          className={
+            activeTab === "mypage" ? "view-pane active" : "view-pane hidden"
+          }
+        >
+          <MyPageView
+            user={currentUser}
+            locatedCount={locatedCount}
+            mapCount={mapAlerts.length}
+            localCount={localPeople.length}
+          />
+        </div>
       </main>
     </div>
   );
@@ -1010,7 +1151,9 @@ function MapView({
   alerts,
   error,
   loading,
+  mapDisasterLoading,
   locatedCount,
+  userMapCenter,
   mapRef,
   mapInstanceRef,
   selected,
@@ -1145,6 +1288,28 @@ function MapView({
               />
             )}
 
+            {!loading && mapDisasterLoading && (
+              <OverlayNotice
+                icon={Loader2}
+                text="현재 지도 주변 실종 문자경보를 불러오는 중입니다."
+                spinning
+              />
+            )}
+
+            {!userMapCenter && (
+              <OverlayNotice
+                icon={MapPin}
+                text="회원 주소 좌표가 없어 기본 위치에서 지도를 시작합니다."
+              />
+            )}
+
+            {!loading && !mapDisasterLoading && locatedCount === 0 && (
+              <OverlayNotice
+                icon={MapPin}
+                text="좌표가 확인된 실종자 데이터가 아직 없습니다."
+              />
+            )}
+
             {error && (
               <OverlayNotice icon={AlertTriangle} text={error} tone="danger" />
             )}
@@ -1173,6 +1338,73 @@ function MapView({
         ) : null}
     </div>
   </section>
+  );
+}
+
+function MyPageView({ user, locatedCount, mapCount, localCount }) {
+  const hasAddressPoint = Number.isFinite(Number(user?.lat)) && Number.isFinite(Number(user?.lng));
+
+  return (
+    <section className="content-view mypage-view" aria-labelledby="mypage-title">
+      <div className="section-heading">
+        <div>
+          <h2 id="mypage-title">마이페이지</h2>
+          <p>로그인한 계정과 지도 기준 위치를 확인할 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div className="mypage-grid">
+        <article className="profile-panel">
+          <div className="profile-avatar" aria-hidden="true">
+            {user?.name?.slice(0, 1) || "?"}
+          </div>
+          <div>
+            <span>내 계정</span>
+            <h3>{user?.name || "이름 없음"}</h3>
+            <p>{hasAddressPoint ? "주소 좌표 확인됨" : "주소 좌표 미확인"}</p>
+          </div>
+        </article>
+
+        <div className="profile-info-list">
+          <ProfileInfoItem icon={Mail} label="이메일" value={user?.email || "미등록"} />
+          <ProfileInfoItem icon={Home} label="주소" value={user?.address || "미등록"} />
+          <ProfileInfoItem
+            icon={MapPinned}
+            label="지도 좌표"
+            value={
+              hasAddressPoint
+                ? `${Number(user.lat).toFixed(6)}, ${Number(user.lng).toFixed(6)}`
+                : "좌표 없음"
+            }
+          />
+          <ProfileInfoItem
+            icon={CalendarClock}
+            label="가입일"
+            value={formatShortDate(user?.createdAt)}
+          />
+        </div>
+
+        <div className="status-row wide mypage-stats">
+          <Metric label="지도 표시 대상" value={`${mapCount}건`} />
+          <Metric label="좌표 확인됨" value={`${locatedCount}건`} />
+          <Metric label="직접 등록" value={`${localCount}건`} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProfileInfoItem({ icon: Icon, label, value }) {
+  return (
+    <div className="profile-info-item">
+      <span className="profile-info-icon">
+        <Icon size={18} aria-hidden="true" />
+      </span>
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+    </div>
   );
 }
 
@@ -1237,7 +1469,7 @@ function AlertListPanel({
               <small>실종일 {formatShortDate(person.missingAt)}</small>
               <small>{person.locationText || "위치 정보 미제공"}</small>
               <span className="person-row-tags">
-                <em>{person.sourceType === "local" ? "직접 등록" : "공식 API"}</em>
+                <em>{getSourceLabel(person)}</em>
                 <em>{person.lat && person.lng ? "위치 확인됨" : "위치 미확인"}</em>
                 {person.clothing && person.clothing !== "착의 정보 미제공" && (
                   <em>{person.clothing}</em>
@@ -1421,7 +1653,7 @@ function SearchView({ onSelect, setActiveTab }) {
 
         <div className="disaster-cache-box">
           <div>
-            <strong>긴급문자 DB</strong>
+            <strong>실종 문자 DB</strong>
             <span>
               {cacheStatus?.count
                 ? `${cacheStatus.count}건 저장됨`
@@ -2001,6 +2233,7 @@ function AuthView({ onAuthSuccess }) {
     name: "",
     email: "",
     password: "",
+    address: "",
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -2019,9 +2252,7 @@ function AuthView({ onAuthSuccess }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
-        setMessage(data.message || "회원가입이 완료되었습니다.");
-        setMode("login");
-        setForm((current) => ({ ...current, password: "" }));
+        onAuthSuccess(data);
         return;
       }
 
@@ -2080,6 +2311,20 @@ function AuthView({ onAuthSuccess }) {
                 onChange={(event) =>
                   setForm({ ...form, name: event.target.value })
                 }
+              />
+            </label>
+          )}
+
+          {mode === "signup" && (
+            <label>
+              주소
+              <input
+                required
+                value={form.address}
+                onChange={(event) =>
+                  setForm({ ...form, address: event.target.value })
+                }
+                placeholder="예: 대구 북구 대학로 80"
               />
             </label>
           )}

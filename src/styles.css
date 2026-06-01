@@ -22,7 +22,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 button,
@@ -106,12 +107,14 @@ a {
 .app-shell {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow: visible;
   background: #ecf6f2;
 }
 
 .sidebar {
+  position: sticky;
+  top: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -121,7 +124,7 @@ a {
   border-right: 1px solid #dde9e4;
   height: 100vh;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .brand {
@@ -246,7 +249,7 @@ a {
 .workspace {
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   padding: 18px;
 }
 
@@ -680,6 +683,104 @@ a {
   margin-top: 8px;
   color: #114639;
   font-size: 24px;
+}
+
+.mypage-view {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.mypage-grid {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.profile-panel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e0ebe6;
+  box-shadow: 0 18px 36px rgba(18, 56, 47, 0.06);
+}
+
+.profile-avatar {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  place-items: center;
+  border-radius: 18px;
+  background: #137965;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.profile-panel span,
+.profile-info-item span {
+  color: #587269;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-panel h3 {
+  margin: 4px 0 6px;
+  color: #16312d;
+  font-size: 28px;
+}
+
+.profile-panel p {
+  margin: 0;
+  color: #426058;
+}
+
+.profile-info-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.profile-info-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e0ebe6;
+}
+
+.profile-info-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef8f4;
+  color: #0f6f57;
+}
+
+.profile-info-item div {
+  min-width: 0;
+}
+
+.profile-info-item strong {
+  display: block;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  color: #1c3832;
+  font-size: 16px;
+}
+
+.mypage-stats {
+  margin-bottom: 0;
 }
 
 .map-canvas-wrap {
@@ -2218,6 +2319,9 @@ a:focus-visible {
     position: sticky;
     top: 0;
     z-index: 20;
+    height: auto;
+    max-height: none;
+    overflow: visible;
     padding: 14px;
   }
 

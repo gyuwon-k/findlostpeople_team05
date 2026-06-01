@@ -91,11 +91,11 @@ async function postSafeDream(url, config, params) {
   });
 
   const text = await response.text();
-
-  console.log("SafeDream request url:", url);
-  console.log("SafeDream request body:", body.toString());
-  console.log("SafeDream status:", response.status);
-  console.log("SafeDream raw text:", text.slice(0, 1000));
+  const parsedUrl = new URL(url);
+  console.log(
+    "SafeDream request:",
+    `${parsedUrl.pathname} status=${response.status} bytes=${text.length}`,
+  );
 
   if (!response.ok) {
     throw new Error(

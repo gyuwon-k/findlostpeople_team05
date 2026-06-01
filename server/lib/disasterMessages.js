@@ -154,11 +154,16 @@ function normalizeDisasterMessage(item, index) {
     height: "",
     weight: "",
     bodyType: "",
-    features: message || "긴급재난문자 원문 미제공",
+    features: message || "실종 문자 원문 미제공",
     sourceUrl: "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
     status: "disaster-message",
-    sourceLabel: "긴급재난문자",
+    sourceLabel: "실종 문자경보",
   };
+}
+
+function hasExtractedPersonName(person) {
+  const name = String(person?.name || "").trim();
+  return Boolean(name && !name.includes("미상") && !name.includes("誘몄긽"));
 }
 
 async function fetchDisasterMessagePage(config, query = {}) {
@@ -253,7 +258,10 @@ export async function fetchMissingDisasterMessages(config, query = {}) {
     items = recentPages.flatMap((page) => page.items);
   }
 
-  return items.filter(isMissingMessage).map(normalizeDisasterMessage);
+  return items
+    .filter(isMissingMessage)
+    .map(normalizeDisasterMessage)
+    .filter(hasExtractedPersonName);
 }
 
 export async function collectMissingDisasterMessages(config, options = {}) {
@@ -300,7 +308,10 @@ export async function collectMissingDisasterMessages(config, options = {}) {
   }
 
   const items = uniqueMessages(
-    collected.filter(isMissingMessage).map(normalizeDisasterMessage),
+    collected
+      .filter(isMissingMessage)
+      .map(normalizeDisasterMessage)
+      .filter(hasExtractedPersonName),
   );
 
   return {

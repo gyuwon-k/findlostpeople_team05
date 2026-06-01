@@ -41,8 +41,24 @@ const config = {
 const allowedOrigins = new Set([
   config.clientOrigin,
   "http://localhost:5173",
-  "http://127.0.0.1:5173"
+  "http://localhost:5174",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174"
 ]);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (allowedOrigins.has(origin)) return true;
+
+  try {
+    const url = new URL(origin);
+    const isLocalHost = ["localhost", "127.0.0.1"].includes(url.hostname);
+    const isVitePort = Number(url.port) >= 5173 && Number(url.port) <= 5179;
+    return isLocalHost && isVitePort;
+  } catch {
+    return false;
+  }
+}
 
 function loadEnvFile() {
   const envPath = path.join(process.cwd(), ".env");
@@ -65,7 +81,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.has(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }
@@ -100,6 +116,9 @@ function publicUser(user) {
     id: user.id,
     name: user.name,
     email: user.email,
+    address: user.address || "",
+    lat: user.lat ?? null,
+    lng: user.lng ?? null,
     createdAt: user.createdAt
   };
 }
@@ -406,6 +425,151 @@ function mergePeople(primary, fallback) {
   return merged;
 }
 
+function toNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hasCoordinates(person) {
+  if (person?.lat === null || person?.lat === undefined || person?.lat === "") return false;
+  if (person?.lng === null || person?.lng === undefined || person?.lng === "") return false;
+  return Number.isFinite(Number(person.lat)) && Number.isFinite(Number(person.lng));
+}
+
+function distanceKm(from, to) {
+  const lat1 = Number(from.lat);
+  const lng1 = Number(from.lng);
+  const lat2 = Number(to.lat);
+  const lng2 = Number(to.lng);
+  if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Number.POSITIVE_INFINITY;
+
+  const radius = 6371;
+  const toRad = (value) => (value * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function isInsideBounds(person, bounds) {
+  if (!bounds || !hasCoordinates(person)) return true;
+  const lat = Number(person.lat);
+  const lng = Number(person.lng);
+  return (
+    lat >= bounds.swLat &&
+    lat <= bounds.neLat &&
+    lng >= bounds.swLng &&
+    lng <= bounds.neLng
+  );
+}
+
+function readBounds(query) {
+  const swLat = toNumber(query.swLat);
+  const swLng = toNumber(query.swLng);
+  const neLat = toNumber(query.neLat);
+  const neLng = toNumber(query.neLng);
+  if ([swLat, swLng, neLat, neLng].some((value) => value === null)) return null;
+
+  return {
+    swLat: Math.min(swLat, neLat),
+    swLng: Math.min(swLng, neLng),
+    neLat: Math.max(swLat, neLat),
+    neLng: Math.max(swLng, neLng)
+  };
+}
+
+function sortByRecent(people) {
+  return [...people].sort((a, b) => {
+    const dateA = Date.parse(String(a.missingAt || "").replace(" ", "T")) || 0;
+    const dateB = Date.parse(String(b.missingAt || "").replace(" ", "T")) || 0;
+    return dateB - dateA;
+  });
+}
+
+async function getLocatedDisasterMessages(query) {
+  const limit = Math.min(Math.max(Number(query.limit || 40), 1), 80);
+  const candidateLimit = Math.min(Math.max(Number(query.candidateLimit || 180), limit), 500);
+  const geocodeLimit = Math.min(Math.max(Number(query.geocodeLimit || 45), 0), 80);
+  const origin = {
+    lat: toNumber(query.lat),
+    lng: toNumber(query.lng)
+  };
+  const bounds = readBounds(query);
+  const cache = await readDisasterCache();
+  const cachedItems = cache.items.length ? cache.items : await getMissingDisasterMessages({ rowSize: 100 });
+  const candidates = sortByRecent(cachedItems)
+    .filter((person) => {
+      const name = String(person.name || "").trim();
+      return name && !name.includes("미상") && !name.includes("誘몄긽");
+    })
+    .slice(0, candidateLimit);
+
+  const enriched = [];
+  let geocodeCount = 0;
+  let didUpdateCache = false;
+  const cacheById = new Map(cachedItems.map((person) => [person.id, person]));
+
+  for (const person of candidates) {
+    let current = person;
+
+    if (
+      !hasCoordinates(current) &&
+      geocodeCount < geocodeLimit
+    ) {
+      geocodeCount += 1;
+      const coordinates = await geocodeAddress(current.locationText, config.kakaoRestKey).catch(() => null);
+      current = {
+        ...current,
+        lat: coordinates?.lat ?? null,
+        lng: coordinates?.lng ?? null,
+        geocodeStatus: coordinates ? "resolved" : "unresolved"
+      };
+
+      const cached = cacheById.get(current.id);
+      if (cached) {
+        Object.assign(cached, {
+          lat: current.lat,
+          lng: current.lng,
+          geocodeStatus: current.geocodeStatus
+        });
+        didUpdateCache = true;
+      }
+    }
+
+    if (hasCoordinates(current)) {
+      enriched.push(current);
+    }
+  }
+
+  if (didUpdateCache && cache.items.length) {
+    await writeDisasterCache(cachedItems, cache.meta);
+    clearCache();
+  }
+
+  const filtered = enriched
+    .filter((person) => isInsideBounds(person, bounds))
+    .map((person) => ({
+      ...person,
+      distanceKm:
+        origin.lat !== null && origin.lng !== null
+          ? Number(distanceKm(origin, person).toFixed(2))
+          : null
+    }));
+
+  filtered.sort((a, b) => {
+    if (a.distanceKm !== null && b.distanceKm !== null) {
+      return a.distanceKm - b.distanceKm;
+    }
+    const dateA = Date.parse(String(a.missingAt || "").replace(" ", "T")) || 0;
+    const dateB = Date.parse(String(b.missingAt || "").replace(" ", "T")) || 0;
+    return dateB - dateA;
+  });
+
+  return filtered.slice(0, limit);
+}
+
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
@@ -417,7 +581,7 @@ app.get("/api/health", (req, res) => {
 
 app.post("/api/auth/signup", asyncRoute(async (req, res) => {
   const body = req.body || {};
-  requireFields(body, ["name", "email", "password"]);
+  requireFields(body, ["name", "email", "password", "address"]);
 
   const email = String(body.email).trim().toLowerCase();
   const password = String(body.password);
@@ -436,11 +600,19 @@ app.post("/api/auth/signup", asyncRoute(async (req, res) => {
     });
   }
 
+  const address = String(body.address || "").trim();
+  const coordinates = config.kakaoRestKey
+    ? await geocodeAddress(address, config.kakaoRestKey).catch(() => null)
+    : null;
+
   const passwordData = hashPassword(password);
   const user = {
     id: `user-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
     name: String(body.name).trim(),
     email,
+    address,
+    lat: coordinates?.lat ?? null,
+    lng: coordinates?.lng ?? null,
     passwordSalt: passwordData.salt,
     passwordHash: passwordData.hash,
     createdAt: new Date().toISOString()
@@ -449,9 +621,19 @@ app.post("/api/auth/signup", asyncRoute(async (req, res) => {
   users.push(user);
   await writeJsonFile(usersPath, users);
 
+  const sessions = await readJsonFile(sessionsPath);
+  const session = {
+    token: createToken(),
+    userId: user.id,
+    createdAt: new Date().toISOString()
+  };
+  sessions.push(session);
+  await writeJsonFile(sessionsPath, sessions);
+
   res.status(201).json({
+    token: session.token,
     user: publicUser(user),
-    message: "회원가입이 완료되었습니다. 로그인해주세요."
+    message: "회원가입이 완료되었습니다."
   });
 }));
 
@@ -501,6 +683,15 @@ app.get("/api/missing/alerts", asyncRoute(async (req, res) => {
   const people = await getAlerts(readQuery(req));
   res.json({
     source: "safe182",
+    count: people.length,
+    items: people
+  });
+}));
+
+app.get("/api/missing/map-disaster", requireAuth(async (req, res) => {
+  const people = await getLocatedDisasterMessages(req.query || {});
+  res.json({
+    source: "disaster-message-map",
     count: people.length,
     items: people
   });

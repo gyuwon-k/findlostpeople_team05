@@ -7,7 +7,7 @@
     "latestPage": 526,
     "refreshedAt": "2026-06-01T04:48:29.920Z",
     "itemCount": 4796,
-    "savedAt": "2026-06-01T04:48:29.933Z"
+    "savedAt": "2026-06-01T15:47:53.420Z"
   },
   "items": [
     {
@@ -82202,7 +82202,8 @@
       "features": "경찰은 청주시 흥덕구에서 실종된 이상세씨(남, 76세)를 찾습니다- 170cm,70kg,마름,흰색환자복,검정조끼 vo.la/vRskXq /☎182 [충북경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226811",
@@ -82212,8 +82213,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 19:16",
       "locationText": "경상남도 밀양시",
-      "lat": null,
-      "lng": null,
+      "lat": 35.5038172707286,
+      "lng": 128.74660754822,
       "clothing": "밀양시 주민인 조미연씨(여,81세)를 찾습니다-155cm,60kg,파란색점퍼,검정긴바지,자주색운동화,보행기 소유 vo.la/ZvlkpT /☎112 [경남경찰청]",
       "height": "",
       "weight": "",
@@ -82221,7 +82222,8 @@
       "features": "밀양시 주민인 조미연씨(여,81세)를 찾습니다-155cm,60kg,파란색점퍼,검정긴바지,자주색운동화,보행기 소유 vo.la/ZvlkpT /☎112 [경남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226536",
@@ -82345,8 +82347,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-23 16:47",
       "locationText": "울산광역시 중구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.5693352250424,
+      "lng": 129.332494084522,
       "clothing": "중구 주민인 이성수씨(남,75세)를 찾습니다-170cm,65kg,백발,검정점퍼,검정바지,검정구두\r\nvo.la/vESYUo / ☎112 [울산경찰청]",
       "height": "",
       "weight": "",
@@ -82354,7 +82356,8 @@
       "features": "중구 주민인 이성수씨(남,75세)를 찾습니다-170cm,65kg,백발,검정점퍼,검정바지,검정구두\r\nvo.la/vESYUo / ☎112 [울산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226775",
@@ -82373,7 +82376,8 @@
       "features": "미추홀구에서 실종된 고남석씨(남,87세)를 찾습니다-175cm,남색조끼,체크셔츠,검정바지,흰색운동화,보행기\r\nvo.la/fxcVGq / ☎112 [인천경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226496",
@@ -82440,8 +82444,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-22 16:38",
       "locationText": "강원특별자치도 홍천군",
-      "lat": null,
-      "lng": null,
+      "lat": 37.697167316273,
+      "lng": 127.888684130433,
       "clothing": "홍천군 주민인 강계순씨(여,60세)를 찾습니다- 165cm,마른체형,검정롱패딩,검정긴바지,회색부츠,검정벙거지모자 vo.la/GCZNem /☎182 [강원경찰청]",
       "height": "",
       "weight": "",
@@ -82449,7 +82453,8 @@
       "features": "홍천군 주민인 강계순씨(여,60세)를 찾습니다- 165cm,마른체형,검정롱패딩,검정긴바지,회색부츠,검정벙거지모자 vo.la/GCZNem /☎182 [강원경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226507",
@@ -82563,7 +82568,8 @@
       "features": "수영구 주민인 한복수씨(남,90세)를 찾습니다-170cm,65kg,파란상의,회색패딩조끼,어두운색바지,남색운동화\r\nvo.la/cxZMEZ /☎182 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226518",
@@ -82592,8 +82598,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-22 16:28",
       "locationText": "서울특별시 양천구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5169884752607,
+      "lng": 126.866501409661,
       "clothing": "경찰은 양천구 주민인 김오석씨(남, 85세)를 찾습니다- 160cm, 50kg, 노란색털모자, 검정색점퍼 vo.la/GejAsq /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -82601,7 +82607,8 @@
       "features": "경찰은 양천구 주민인 김오석씨(남, 85세)를 찾습니다- 160cm, 50kg, 노란색털모자, 검정색점퍼 vo.la/GejAsq /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226626",
@@ -82687,8 +82694,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 16:00",
       "locationText": "서울특별시 양천구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5169884752607,
+      "lng": 126.866501409661,
       "clothing": "양천구 주민인 윤정기씨(남,81세)를 찾습니다-167cm,60kg,밤색모자(민머리),흰운동화,손수레를 끌고 다님 vo.la/kLQpqd /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -82696,7 +82703,8 @@
       "features": "양천구 주민인 윤정기씨(남,81세)를 찾습니다-167cm,60kg,밤색모자(민머리),흰운동화,손수레를 끌고 다님 vo.la/kLQpqd /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226798",
@@ -82706,8 +82714,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 16:12",
       "locationText": "인천광역시 부평구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5070416636401,
+      "lng": 126.721864167603,
       "clothing": "부평구에서 최종 목격된 김경득씨(남,43세)를 찾습니다- 150cm,55kg,회색패딩,검정긴바지,검정운동화 vo.la/VLvoXl /☎182 [인천경찰청]",
       "height": "",
       "weight": "",
@@ -82715,7 +82723,8 @@
       "features": "부평구에서 최종 목격된 김경득씨(남,43세)를 찾습니다- 150cm,55kg,회색패딩,검정긴바지,검정운동화 vo.la/VLvoXl /☎182 [인천경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226580",
@@ -82791,7 +82800,8 @@
       "features": "중구 주민인 김영중씨(남,34세)를 찾습니다-162cm,75kg,빨간잠바,회색추리닝바지,검은운동화,쥐색가방\r\nvo.la/USqPeZ /☎182 [울산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226766",
@@ -82810,7 +82820,8 @@
       "features": "사상구 주민인 차일매씨(여,75세)를 찾습니다- 150cm,45kg,노란색패딩,검정바지,빨간색운동화,가리개모자 vo.la/qDLSsw /☎112 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-227221",
@@ -82896,8 +82907,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-23 19:45",
       "locationText": "경기도 화성시",
-      "lat": null,
-      "lng": null,
+      "lat": 37.1995372034717,
+      "lng": 126.831477350333,
       "clothing": "화성시에서 배회 중인 박보름씨(여,33세)를 찾습니다-165cm,70kg,정수리탈모,검정긴팔티,검정바지\r\nvo.la/VOiYMg / ☎112 [경기남부경찰청]",
       "height": "",
       "weight": "",
@@ -82905,7 +82916,8 @@
       "features": "화성시에서 배회 중인 박보름씨(여,33세)를 찾습니다-165cm,70kg,정수리탈모,검정긴팔티,검정바지\r\nvo.la/VOiYMg / ☎112 [경기남부경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226788",
@@ -82924,7 +82936,8 @@
       "features": "남동구 주민인 이영우씨(남,73세)를 찾습니다-160cm,검정점퍼,검정바지,회색신발,크림색강아지,빨간목줄\r\nvo.la/ypLLwi /☎112 [인천경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226807",
@@ -82943,7 +82956,8 @@
       "features": "강남구에서 배회 중인 하현범씨(남,63세)를 찾습니다-170cm,70kg,검정녹색체크셔츠,청녹색긴바지,안경,백발 vo.la/PdtqvA /☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226667",
@@ -84131,8 +84145,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-24 14:03",
       "locationText": "울산광역시 남구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.5438097037233,
+      "lng": 129.330091790831,
       "clothing": "남구 주민인 전옥례씨(여,79세)를 찾습니다-150cm,50kg,짧은파마머리,밤색검정색줄무늬긴팔,긴바지,검정단화 vo.la/GaKFqV /☎112 [울산경찰청]",
       "height": "",
       "weight": "",
@@ -84140,7 +84154,8 @@
       "features": "남구 주민인 전옥례씨(여,79세)를 찾습니다-150cm,50kg,짧은파마머리,밤색검정색줄무늬긴팔,긴바지,검정단화 vo.la/GaKFqV /☎112 [울산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226077",
@@ -84207,8 +84222,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-23 08:13",
       "locationText": "경기도 화성시",
-      "lat": null,
-      "lng": null,
+      "lat": 37.1995372034717,
+      "lng": 126.831477350333,
       "clothing": "화성시에서 최종 목격된 신영재씨(남,18세)를 찾습니다-173cm,60kg,분홍색긴팔티,청바지,흰색슬리퍼\r\nvo.la/fiTtjA / ☎112 [경기남부경찰청]",
       "height": "",
       "weight": "",
@@ -84216,7 +84231,8 @@
       "features": "화성시에서 최종 목격된 신영재씨(남,18세)를 찾습니다-173cm,60kg,분홍색긴팔티,청바지,흰색슬리퍼\r\nvo.la/fiTtjA / ☎112 [경기남부경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226702",
@@ -84292,7 +84308,8 @@
       "features": "수영구 주민인 이정재씨(남,91세)를 찾습니다- 165cm,하늘색잠바,검정바지,흰색운동화,갈색모자(주변머리백발) vo.la/HapTHx /☎112 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226678",
@@ -84368,7 +84385,8 @@
       "features": "부산진구 주민인 이희우씨(남,77세)를 찾습니다-166cm,65kg,남색잠바,회색바지,검정운동화(빨간라인)\r\nvo.la/kzQUcL / ☎112 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226805",
@@ -84378,8 +84396,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 18:11",
       "locationText": "대전광역시 서구",
-      "lat": null,
-      "lng": null,
+      "lat": 36.3554987200538,
+      "lng": 127.383789715873,
       "clothing": "서구에서 최종목격된 이수진씨(남, 40세)를 찾습니다-175cm,70kg,긴단발머리,검정색잠바,검정바지,흰운동화 vo.la/LRJLLz /☎112 [대전경찰청]",
       "height": "",
       "weight": "",
@@ -84387,7 +84405,8 @@
       "features": "서구에서 최종목격된 이수진씨(남, 40세)를 찾습니다-175cm,70kg,긴단발머리,검정색잠바,검정바지,흰운동화 vo.la/LRJLLz /☎112 [대전경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226806",
@@ -84397,8 +84416,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 18:11",
       "locationText": "충청남도 부여군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.2757637166445,
+      "lng": 126.909772812745,
       "clothing": "부여군 주민인 이수진씨(남, 40세)를 찾습니다- 175cm,70kg,긴단발머리,검정색잠바,검정바지,흰운동화 vo.la/LRJLLz /☎112 [충남경찰청]",
       "height": "",
       "weight": "",
@@ -84406,7 +84425,8 @@
       "features": "부여군 주민인 이수진씨(남, 40세)를 찾습니다- 175cm,70kg,긴단발머리,검정색잠바,검정바지,흰운동화 vo.la/LRJLLz /☎112 [충남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-227445",
@@ -84416,8 +84436,8 @@
       "photoUrl": "",
       "missingAt": "2024-12-20 13:18",
       "locationText": "서울특별시 영등포구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5263635705034,
+      "lng": 126.896273923703,
       "clothing": "관악구에서 주민인 유민호군(남,12세)을 찾습니다-155cm,뿔테안경,진한회색롱패딩,청색추리닝바지,흰줄무늬운동화 vo.la/WCBaNG /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -84425,7 +84445,8 @@
       "features": "관악구에서 주민인 유민호군(남,12세)을 찾습니다-155cm,뿔테안경,진한회색롱패딩,청색추리닝바지,흰줄무늬운동화 vo.la/WCBaNG /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226726",
@@ -84539,7 +84560,8 @@
       "features": "성북구에서 실종된 장지찬씨(남,78세)를 찾습니다- 165cm,55kg,백발,파란색티셔츠,검정바지,흰색신발 vo.la/wQQwFB /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226462",
@@ -84710,7 +84732,8 @@
       "features": "경찰은 성북구 주민인 양재옥씨(여, 84세)를 찾습니다- 158cm,55kg,회색바지,회색운동화,검정파마머리 vo.la/hMdKDv /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226525",
@@ -84891,8 +84914,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-22 16:52",
       "locationText": "서울특별시 양천구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5169884752607,
+      "lng": 126.866501409661,
       "clothing": "양천구 주민인 최래현씨(남,69세)를 찾습니다-175cm,60kg,백발머리,검정야구모자,검정점퍼(보라색티셔츠) vo.la/iSdmAF /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -84900,7 +84923,8 @@
       "features": "양천구 주민인 최래현씨(남,69세)를 찾습니다-175cm,60kg,백발머리,검정야구모자,검정점퍼(보라색티셔츠) vo.la/iSdmAF /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226510",
@@ -84938,7 +84962,8 @@
       "features": "창원시에서 최종 목격된 김이정씨(여,27세)를 찾습니다- 158cm,68kg,하늘색티셔츠,검정롱패딩,검정크로스백 vo.la/dOHQQX /☎112 [경남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226708",
@@ -84986,8 +85011,8 @@
       "photoUrl": "",
       "missingAt": "2024-12-09 08:19",
       "locationText": "전북특별자치도 전주시 덕진구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.829403251891,
+      "lng": 127.134288790967,
       "clothing": "전주시 덕진구에서 목격된 김옥순씨(여,55세)를 찾습니다-140cm,39kg,흰색점퍼,밤색바지,주황색신발,지팡이 vo.la/YgIlOd /☎112 [전북경찰청]",
       "height": "",
       "weight": "",
@@ -84995,7 +85020,8 @@
       "features": "전주시 덕진구에서 목격된 김옥순씨(여,55세)를 찾습니다-140cm,39kg,흰색점퍼,밤색바지,주황색신발,지팡이 vo.la/YgIlOd /☎112 [전북경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-228448",
@@ -85005,8 +85031,8 @@
       "photoUrl": "",
       "missingAt": "2025-01-12 20:00",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "(인제군) 실종된 김옥하씨(여성, 67세)를 찾고있습니다. - 시각장애인, 강아지 두마리, 분홍색 잠바, 검정색 하의 ☎112, 119 [인제군]",
       "height": "",
       "weight": "",
@@ -85014,7 +85040,8 @@
       "features": "(인제군) 실종된 김옥하씨(여성, 67세)를 찾고있습니다. - 시각장애인, 강아지 두마리, 분홍색 잠바, 검정색 하의 ☎112, 119 [인제군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-228449",
@@ -85024,8 +85051,8 @@
       "photoUrl": "",
       "missingAt": "2025-01-12 20:29",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "시민 여러분의 관심과 제보로 실종된 김옥하씨를 안전하게 발견하였습니다. 감사합니다.(인제경찰서, 인제소방서)[인제군]",
       "height": "",
       "weight": "",
@@ -85033,7 +85060,8 @@
       "features": "시민 여러분의 관심과 제보로 실종된 김옥하씨를 안전하게 발견하였습니다. 감사합니다.(인제경찰서, 인제소방서)[인제군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226460",
@@ -85366,8 +85394,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-21 10:08",
       "locationText": "부산광역시 해운대구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.1630666685464,
+      "lng": 129.163596084009,
       "clothing": "해운대구에서 배회 중인 김민호(남,17세)를 찾습니다-177cm,65kg,상의 검은색후드,회색계통바지,검은가방\r\nvo.la/aptWZO /☎182 [부산경찰청]",
       "height": "",
       "weight": "",
@@ -85375,7 +85403,8 @@
       "features": "해운대구에서 배회 중인 김민호(남,17세)를 찾습니다-177cm,65kg,상의 검은색후드,회색계통바지,검은가방\r\nvo.la/aptWZO /☎182 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226768",
@@ -85394,7 +85423,8 @@
       "features": "수원시에서 배회 중인 신영재씨(남,18세)를 찾습니다-173cm,60kg,분홍색긴팔티,청바지,흰색슬리퍼\r\nvo.la/fiTtjA / ☎112 [경기남부경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226781",
@@ -85413,7 +85443,8 @@
       "features": "성동구에서 실종된 이정국씨(남, 85세)를 찾습니다- 165cm,50kg,검정패딩,검정하의,검정모자,검정신발 vo.la/uMbAdo /☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226795",
@@ -85423,8 +85454,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 14:55",
       "locationText": "서울특별시 양천구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5169884752607,
+      "lng": 126.866501409661,
       "clothing": "양천구에서 배회중인 박성빈군(남,13세)을 찾습니다- 171cm,64kg,검정노스페이스패딩,나이키바지,나이키가방 vo.la/zBUpbF /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -85432,7 +85463,8 @@
       "features": "양천구에서 배회중인 박성빈군(남,13세)을 찾습니다- 171cm,64kg,검정노스페이스패딩,나이키바지,나이키가방 vo.la/zBUpbF /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226540",
@@ -85489,7 +85521,8 @@
       "features": "청주시에서 목격된 서국조씨(여,79세)를 찾습니다-150cm,70kg,갈색코트,흰색패딩,회색바지,흰색운동화\r\nvo.la/StrwSm /☎182 [충북경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226599",
@@ -85736,7 +85769,8 @@
       "features": "천안시에서 최종 목격된 윤문기씨(남, 92세)를 찾습니다-175cm,65kg,남색점퍼,검정바지,회색중절모,지팡이 vo.la/DlqnwH /☎112 [충남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226808",
@@ -85746,8 +85780,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 18:35",
       "locationText": "충청남도 아산시",
-      "lat": null,
-      "lng": null,
+      "lat": 36.789974167605,
+      "lng": 127.002509638233,
       "clothing": "아산시 주민인 송진옥씨(여,47세)를 찾습니다- 164cm,50kg,검정경량패딩,검정바지,검정운동화,단발묶음머리 vo.la/jVqYmG /☎112 [충남경찰청]",
       "height": "",
       "weight": "",
@@ -85755,7 +85789,8 @@
       "features": "아산시 주민인 송진옥씨(여,47세)를 찾습니다- 164cm,50kg,검정경량패딩,검정바지,검정운동화,단발묶음머리 vo.la/jVqYmG /☎112 [충남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226809",
@@ -85774,7 +85809,8 @@
       "features": "부천시 주민인 이명주씨(남,62세)를 찾습니다-165cm,63kg,짧은머리,남색패딩,검정긴바지,흰마스크 착용 vo.la/ZykfTb /☎112 [경기남부경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226785",
@@ -85784,8 +85820,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-24 15:53",
       "locationText": "부산광역시 사하구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.1044479031517,
+      "lng": 128.974932970701,
       "clothing": "사하구에서 배회 중인 이희우씨(남,77세)를 찾습니다-166cm,65kg,남색잠바,회색바지,검정운동화(빨간라인) vo.la/kzQUcL /☎112 [부산경찰청]",
       "height": "",
       "weight": "",
@@ -85793,7 +85829,8 @@
       "features": "사하구에서 배회 중인 이희우씨(남,77세)를 찾습니다-166cm,65kg,남색잠바,회색바지,검정운동화(빨간라인) vo.la/kzQUcL /☎112 [부산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226485",
@@ -85860,8 +85897,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-22 16:15",
       "locationText": "서울특별시 서대문구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5791618639788,
+      "lng": 126.9368156604,
       "clothing": "서대문구에서 배회중인 이기필씨(남,69세)를 찾습니다- 169cm,65kg,남색패딩,얼룩무늬바지,흰운동화 vo.la/iOMALT /☎182 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -85869,7 +85906,8 @@
       "features": "서대문구에서 배회중인 이기필씨(남,69세)를 찾습니다- 169cm,65kg,남색패딩,얼룩무늬바지,흰운동화 vo.la/iOMALT /☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226787",
@@ -85879,8 +85917,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-24 18:10",
       "locationText": "서울특별시 강동구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5301933196157,
+      "lng": 127.123792501252,
       "clothing": "강동구 주민인 오우열씨(남,82세)를 찾습니다-162cm,55kg,보라색카라티,검정추리닝바지,흰색슬리퍼\r\nvo.la/LcxiVm /☎112 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -85888,7 +85926,8 @@
       "features": "강동구 주민인 오우열씨(남,82세)를 찾습니다-162cm,55kg,보라색카라티,검정추리닝바지,흰색슬리퍼\r\nvo.la/LcxiVm /☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226564",
@@ -85964,7 +86003,8 @@
       "features": "노원구 주민인 박청자씨(여,83세)를 찾습니다-150cm,70kg,분홍색모자,황토색외투,검정바지,검정신발\r\nvo.la/QwNVZY / ☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226578",
@@ -86031,8 +86071,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-21 16:13",
       "locationText": "울산광역시 중구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.5693352250424,
+      "lng": 129.332494084522,
       "clothing": "중구 주민인 박순복씨(여,69세)를 찾습니다-155cm,45kg,청조끼,빨간티셔츠,청바지,검은운동화,걸음불편\r\nvo.la/aNGCmt /☎182 [울산경찰청]",
       "height": "",
       "weight": "",
@@ -86040,7 +86080,8 @@
       "features": "중구 주민인 박순복씨(여,69세)를 찾습니다-155cm,45kg,청조끼,빨간티셔츠,청바지,검은운동화,걸음불편\r\nvo.la/aNGCmt /☎182 [울산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226701",
@@ -86088,8 +86129,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-23 14:15",
       "locationText": "대구광역시 동구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.8866236166116,
+      "lng": 128.635524099685,
       "clothing": "동구 주민인 박양자씨(여,82세)를 찾습니다-158cm,48kg,검정조끼,흰색긴팔,검정바지,흰색운동화\r\nvo.la/gkCQBW / ☎112 [대구경찰청]",
       "height": "",
       "weight": "",
@@ -86097,7 +86138,8 @@
       "features": "동구 주민인 박양자씨(여,82세)를 찾습니다-158cm,48kg,검정조끼,흰색긴팔,검정바지,흰색운동화\r\nvo.la/gkCQBW / ☎112 [대구경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-229715",
@@ -86116,7 +86158,8 @@
       "features": "청계면 복길1리에서 최종목격된 박병옥씨(남,77세)를 찾습니다. 마른체형, 체크무늬 회색점퍼, 검정바지, 밤색모자, 안경미착용, 슬리퍼 상태,☎112 [무안군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-230600",
@@ -86126,8 +86169,8 @@
       "photoUrl": "",
       "missingAt": "2025-02-21 19:41",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "남면에서 실종된 김옥화씨(여, 64세)를 찾습니다. 핑크점퍼, 검정색바지, 시각장애인, 강아지 3마리 산책 외출 후 연락 안됨.연락 119, 112[인제군]",
       "height": "",
       "weight": "",
@@ -86135,7 +86178,8 @@
       "features": "남면에서 실종된 김옥화씨(여, 64세)를 찾습니다. 핑크점퍼, 검정색바지, 시각장애인, 강아지 3마리 산책 외출 후 연락 안됨.연락 119, 112[인제군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226547",
@@ -86202,8 +86246,8 @@
       "photoUrl": "",
       "missingAt": "2024-12-23 21:10",
       "locationText": "울산광역시 남구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.5438097037233,
+      "lng": 129.330091790831,
       "clothing": "남구 주민인 배종록씨(남,76세)를 찾습니다-160cm65kg짧은생머리,검정계통패딩점퍼,검정계통바지,앞이빨없음 vo.la/XTGLqI / ☎112 [울산경찰청]",
       "height": "",
       "weight": "",
@@ -86211,7 +86255,8 @@
       "features": "남구 주민인 배종록씨(남,76세)를 찾습니다-160cm65kg짧은생머리,검정계통패딩점퍼,검정계통바지,앞이빨없음 vo.la/XTGLqI / ☎112 [울산경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226739",
@@ -86249,7 +86294,8 @@
       "features": "성북구 주민인 주영호씨(남,75세)를 찾습니다-170cm,57kg,검정점퍼,검정바지,치매팔찌,노스페이스운동화\r\nvo.la/tzhPgz / ☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226455",
@@ -86401,7 +86447,8 @@
       "features": "경찰은 성북구 주민인 배연순씨(여, 58세)를 찾습니다- 158cm,41kg,남색패딩,검정색바지,검정색운동화 vo.la/ldwvoC /☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226486",
@@ -86449,8 +86496,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-21 18:09",
       "locationText": "전라남도 진도군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.4868286203469,
+      "lng": 126.263446186439,
       "clothing": "진도군에서 실종된 설희관씨(남,82세)를 찾습니다-173cm,75kg,대머리,차량 싼타페 10다3093(회색)\r\nvo.la/cyveoO /☎112 [전남경찰청]",
       "height": "",
       "weight": "",
@@ -86458,7 +86505,8 @@
       "features": "진도군에서 실종된 설희관씨(남,82세)를 찾습니다-173cm,75kg,대머리,차량 싼타페 10다3093(회색)\r\nvo.la/cyveoO /☎112 [전남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226801",
@@ -86468,8 +86516,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-25 17:45",
       "locationText": "충청남도 아산시",
-      "lat": null,
-      "lng": null,
+      "lat": 36.789974167605,
+      "lng": 127.002509638233,
       "clothing": "경찰은 아산시 주민인 박성호씨(남, 76세)를 찾습니다- 156cm,60kg,황토색점퍼,검정색바지,검정모자 착용 vo.la/FOZOOO /☎182 [충남경찰청]",
       "height": "",
       "weight": "",
@@ -86477,7 +86525,8 @@
       "features": "경찰은 아산시 주민인 박성호씨(남, 76세)를 찾습니다- 156cm,60kg,황토색점퍼,검정색바지,검정모자 착용 vo.la/FOZOOO /☎182 [충남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226774",
@@ -86496,7 +86545,8 @@
       "features": "미추홀구에서 실종된 김문순씨(여,82세)를 찾습니다-155cm,60kg,검정코트,남색바지,검정운동화,흰색비닐봉투\r\nvo.la/xfside /☎112 [인천경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226470",
@@ -86629,7 +86679,8 @@
       "features": "천안시에서 최종 목격된 박성호씨(남,76세)를 찾습니다- 156cm,60kg,황토색점퍼,검정색바지,검정모자 착용 vo.la/FOZOOO /☎182 [충남경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226548",
@@ -86829,8 +86880,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-24 08:57",
       "locationText": "서울특별시 영등포구",
-      "lat": null,
-      "lng": null,
+      "lat": 37.5263635705034,
+      "lng": 126.896273923703,
       "clothing": "영등포구 주민인 빈주병씨(남,66세)를 찾습니다- 170cm,70kg, 상하의 흰색환자복, 검정단화, 흰색마스크 vo.la/SVcQzv /☎112 [서울경찰청]",
       "height": "",
       "weight": "",
@@ -86838,7 +86889,8 @@
       "features": "영등포구 주민인 빈주병씨(남,66세)를 찾습니다- 170cm,70kg, 상하의 흰색환자복, 검정단화, 흰색마스크 vo.la/SVcQzv /☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226588",
@@ -86886,8 +86938,8 @@
       "photoUrl": "",
       "missingAt": "2025-01-27 09:35",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "서화면 천도리 실종자 발견 / 안전확인 및 귀가 조치 완료 / 내일까지 지속 전망되는 대설 및 한파, 결빙 피해에도 적극 유의바랍니다.[인제군청]",
       "height": "",
       "weight": "",
@@ -86895,7 +86947,8 @@
       "features": "서화면 천도리 실종자 발견 / 안전확인 및 귀가 조치 완료 / 내일까지 지속 전망되는 대설 및 한파, 결빙 피해에도 적극 유의바랍니다.[인제군청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-228769",
@@ -86905,8 +86958,8 @@
       "photoUrl": "",
       "missingAt": "2025-01-27 08:45",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "실종자 발생 유갑명씨(남성 43년생) \r\n- 서화면 천도리 거주 26일 밤11시경 외출\r\n- 160 마른 체형, 모자를 쓰고 안경 미착용\r\n119, 112 [인제군]",
       "height": "",
       "weight": "",
@@ -86914,7 +86967,8 @@
       "features": "실종자 발생 유갑명씨(남성 43년생) \r\n- 서화면 천도리 거주 26일 밤11시경 외출\r\n- 160 마른 체형, 모자를 쓰고 안경 미착용\r\n119, 112 [인제군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-230468",
@@ -87541,7 +87595,8 @@
       "features": "제주시에서 배회중인 이예린(여,11세)을 찾습니다-158cm,55kg,안경착용,검정색상하의 착용 vo.la/npyMVB / ☎112 [제주경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-232885",
@@ -87570,8 +87625,8 @@
       "photoUrl": "",
       "missingAt": "2025-04-12 17:49",
       "locationText": "전라남도 장흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6816120675641,
+      "lng": 126.907058431105,
       "clothing": "대덕읍 주민인 김상례(여, 83세)를 찾습니다.-155cm, 마른체형, 빨간조끼, 검정바지 ☎112, 119[장흥군]",
       "height": "",
       "weight": "",
@@ -87579,7 +87634,8 @@
       "features": "대덕읍 주민인 김상례(여, 83세)를 찾습니다.-155cm, 마른체형, 빨간조끼, 검정바지 ☎112, 119[장흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-234821",
@@ -87589,8 +87645,8 @@
       "photoUrl": "",
       "missingAt": "2025-04-16 16:39",
       "locationText": "전라남도 장흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6816120675641,
+      "lng": 126.907058431105,
       "clothing": "안양면 주민인 실종자 이정미씨(여, 52세)를 찾고 있습니다. 163cm, 50kg, 갈색단발, 밤색 긴팔 상의, 청바지, 회색신발 착용☎112, 119[장흥군]",
       "height": "",
       "weight": "",
@@ -87598,7 +87654,8 @@
       "features": "안양면 주민인 실종자 이정미씨(여, 52세)를 찾고 있습니다. 163cm, 50kg, 갈색단발, 밤색 긴팔 상의, 청바지, 회색신발 착용☎112, 119[장흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-233661",
@@ -87712,7 +87769,8 @@
       "features": "제주시에서 배회중인 임서연(여,12세)을 찾습니다-158cm,52kg,단발머리,남색후드티,흰색운동화착용 vo.la/miGDMZ / ☎112 [제주경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-232313",
@@ -87931,8 +87989,8 @@
       "photoUrl": "",
       "missingAt": "2025-04-16 13:42",
       "locationText": "경상남도 산청군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.4155303921176,
+      "lng": 127.873349988179,
       "clothing": "▲신등면 척지마을 주민인 석정순씨를 찾습니다. ▲80세, 160cm, 치매노인 ▲흰백발, 빨간앞치마 가방, 모자, 긴팔 착용 ▲날씬하고 걸음이 빠른편 [산청군]",
       "height": "",
       "weight": "",
@@ -87940,7 +87998,8 @@
       "features": "▲신등면 척지마을 주민인 석정순씨를 찾습니다. ▲80세, 160cm, 치매노인 ▲흰백발, 빨간앞치마 가방, 모자, 긴팔 착용 ▲날씬하고 걸음이 빠른편 [산청군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-234084",
@@ -88083,8 +88142,8 @@
       "photoUrl": "",
       "missingAt": "2025-04-16 10:58",
       "locationText": "전라남도 장흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6816120675641,
+      "lng": 126.907058431105,
       "clothing": "안양면 주민인 실종자 이정미씨(여, 52세)를 찾고 있습니다. 163cm, 50kg, 갈색단발, 밤색 긴팔 상의, 청바지, 회색신발 착용☎112, 119[장흥군]",
       "height": "",
       "weight": "",
@@ -88092,7 +88151,8 @@
       "features": "안양면 주민인 실종자 이정미씨(여, 52세)를 찾고 있습니다. 163cm, 50kg, 갈색단발, 밤색 긴팔 상의, 청바지, 회색신발 착용☎112, 119[장흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-233597",
@@ -88121,8 +88181,8 @@
       "photoUrl": "",
       "missingAt": "2025-05-05 19:01",
       "locationText": "경상북도 성주군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.919093403726,
+      "lng": 128.282934640557,
       "clothing": "성주군대가면금산교차로부근11시28분0번버스탑승한 강이석(남,86세)씨를찾습니다.-검정색상하의 착용, 밤색계통모자,안경,지팡이 휴대 / ☎112[성주 경찰서]",
       "height": "",
       "weight": "",
@@ -88130,7 +88190,8 @@
       "features": "성주군대가면금산교차로부근11시28분0번버스탑승한 강이석(남,86세)씨를찾습니다.-검정색상하의 착용, 밤색계통모자,안경,지팡이 휴대 / ☎112[성주 경찰서]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-235515",
@@ -88178,8 +88239,8 @@
       "photoUrl": "",
       "missingAt": "2025-06-11 10:54",
       "locationText": "전라남도 무안군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.9903406227326,
+      "lng": 126.481704827287,
       "clothing": "일로 상신기리에서 실종된 한만수(남,59세)씨를 찾습니다.왜소한 체격(155cm, 50kg), 오른쪽 발을 절고 앞 치아 없음, 스포츠 반백머리☎112[무안군]",
       "height": "",
       "weight": "",
@@ -88187,7 +88248,8 @@
       "features": "일로 상신기리에서 실종된 한만수(남,59세)씨를 찾습니다.왜소한 체격(155cm, 50kg), 오른쪽 발을 절고 앞 치아 없음, 스포츠 반백머리☎112[무안군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-235197",
@@ -88216,8 +88278,8 @@
       "photoUrl": "",
       "missingAt": "2025-05-11 23:39",
       "locationText": "강원특별자치도 화천군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.1061819512293,
+      "lng": 127.70815057883,
       "clothing": "상서면 주민 실종자 이덕천씨(남, 45세)를 찾고있습니다. 170cm의 보통체격, 짧은머리로 검정색 하의, 푸른계열 상의를 착용.\r\n☎112, 119 [화천군]",
       "height": "",
       "weight": "",
@@ -88225,7 +88287,8 @@
       "features": "상서면 주민 실종자 이덕천씨(남, 45세)를 찾고있습니다. 170cm의 보통체격, 짧은머리로 검정색 하의, 푸른계열 상의를 착용.\r\n☎112, 119 [화천군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-235836",
@@ -88244,7 +88307,8 @@
       "features": "미추홀구 주민인 양선모씨(여,70세)를 찾습니다- 145cm,55kg,빨간색점퍼,연분홍주름치마,검정운동화,손가방 vo.la/fWLhfT /☎112 [인천경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-233843",
@@ -88444,8 +88508,8 @@
       "photoUrl": "",
       "missingAt": "2025-06-13 10:21",
       "locationText": "충청남도 서천군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.0780362860107,
+      "lng": 126.702882822382,
       "clothing": "화양면에서 실종된 이영일(남,84세)씨를 찾습니다. 왜소한 체격(165cm), 노란색 아웃도어 반팔 및 검은색 트레이닝복 바지 착용중 ☎112, 119[서천군]",
       "height": "",
       "weight": "",
@@ -88453,7 +88517,8 @@
       "features": "화양면에서 실종된 이영일(남,84세)씨를 찾습니다. 왜소한 체격(165cm), 노란색 아웃도어 반팔 및 검은색 트레이닝복 바지 착용중 ☎112, 119[서천군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-235697",
@@ -88482,8 +88547,8 @@
       "photoUrl": "",
       "missingAt": "2025-06-27 10:04",
       "locationText": "경기도 여주시",
-      "lat": null,
-      "lng": null,
+      "lat": 37.2984233734533,
+      "lng": 127.637058787484,
       "clothing": "능현동471(황학산)에서 실종된 김이열(남,81세)을 찾습니다. 경증치매환자, 키165cm 보통체격, 반백머리, 줄무늬 반팔티, 체크 반바지, 모자착용[여주시]",
       "height": "",
       "weight": "",
@@ -88491,7 +88556,8 @@
       "features": "능현동471(황학산)에서 실종된 김이열(남,81세)을 찾습니다. 경증치매환자, 키165cm 보통체격, 반백머리, 줄무늬 반팔티, 체크 반바지, 모자착용[여주시]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-237001",
@@ -88634,8 +88700,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-11 10:54",
       "locationText": "경상남도 남해군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.8377033412786,
+      "lng": 127.892653150096,
       "clothing": "창선면 주민 유미숙(여,86세)님을 찾습니다. 키 150cm, 체격있음, 줄무늬모자,나무무늬 상의 착용,검정색가방과 빨간색지팡이 소지 /발견 시☎112[남해군]",
       "height": "",
       "weight": "",
@@ -88643,7 +88709,8 @@
       "features": "창선면 주민 유미숙(여,86세)님을 찾습니다. 키 150cm, 체격있음, 줄무늬모자,나무무늬 상의 착용,검정색가방과 빨간색지팡이 소지 /발견 시☎112[남해군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-237705",
@@ -88653,8 +88720,8 @@
       "photoUrl": "",
       "missingAt": "2025-07-02 11:03",
       "locationText": "경상남도 남해군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.8377033412786,
+      "lng": 127.892653150096,
       "clothing": "실종자 김종득님(치매노인,74세,여)찾습니다. 7.2.01시경 남면 유구마을 자택에서 나가 귀가않함. 키158cm,검정머리,보통체격,곤색셔츠,회색몸빼바지[남해군]",
       "height": "",
       "weight": "",
@@ -88662,7 +88729,8 @@
       "features": "실종자 김종득님(치매노인,74세,여)찾습니다. 7.2.01시경 남면 유구마을 자택에서 나가 귀가않함. 키158cm,검정머리,보통체격,곤색셔츠,회색몸빼바지[남해군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-237134",
@@ -88672,8 +88740,8 @@
       "photoUrl": "",
       "missingAt": "2025-06-24 18:27",
       "locationText": "경상남도 남해군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.8377033412786,
+      "lng": 127.892653150096,
       "clothing": "창선면 주민 실종자 서유경씨(여, 02년생)를 찾고있습니다. 165cm의 건장한 체격, 주황색 상의, 검은색계열 하의를 착용. ☎112, 119 [남해군]",
       "height": "",
       "weight": "",
@@ -88681,7 +88749,8 @@
       "features": "창선면 주민 실종자 서유경씨(여, 02년생)를 찾고있습니다. 165cm의 건장한 체격, 주황색 상의, 검은색계열 하의를 착용. ☎112, 119 [남해군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-237152",
@@ -88691,8 +88760,8 @@
       "photoUrl": "",
       "missingAt": "2025-06-25 19:45",
       "locationText": "충청남도 서천군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.0780362860107,
+      "lng": 126.702882822382,
       "clothing": "마서면에서 실종된 김장제(남.79세)를 찾습니다. 키165cm 보통체격, 흰머리, 파란색 등산복 긴팔 상의, 검정색 긴바지, 흰색 슬리퍼 [서천군]",
       "height": "",
       "weight": "",
@@ -88700,7 +88769,8 @@
       "features": "마서면에서 실종된 김장제(남.79세)를 찾습니다. 키165cm 보통체격, 흰머리, 파란색 등산복 긴팔 상의, 검정색 긴바지, 흰색 슬리퍼 [서천군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-241022",
@@ -88805,8 +88875,8 @@
       "photoUrl": "",
       "missingAt": "2025-07-31 07:36",
       "locationText": "강원특별자치도 인제군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.0697061389168,
+      "lng": 128.170351448366,
       "clothing": "양구군 광치령 방면 입산 후 실종된 김형각(남.72세)를 찾습니다. 165cm 보통체격, 경증치매, 모자, 파란긴상의(아이보리반팔), 회색신발 [인제군]",
       "height": "",
       "weight": "",
@@ -88814,7 +88884,8 @@
       "features": "양구군 광치령 방면 입산 후 실종된 김형각(남.72세)를 찾습니다. 165cm 보통체격, 경증치매, 모자, 파란긴상의(아이보리반팔), 회색신발 [인제군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-243680",
@@ -88824,8 +88895,8 @@
       "photoUrl": "",
       "missingAt": "2025-07-31 07:07",
       "locationText": "강원특별자치도 양구군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.1100012808234,
+      "lng": 127.989950629015,
       "clothing": "국토정중앙면에서 실종된 김현각(남.72세)를 찾습니다. 키165cm 보통체격, 경증치매, 모자착용, 파란색긴팔상의(아이보리반팔),회색긴바지,회색운동화 [양구군]",
       "height": "",
       "weight": "",
@@ -88833,7 +88904,8 @@
       "features": "국토정중앙면에서 실종된 김현각(남.72세)를 찾습니다. 키165cm 보통체격, 경증치매, 모자착용, 파란색긴팔상의(아이보리반팔),회색긴바지,회색운동화 [양구군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-241033",
@@ -88900,8 +88972,8 @@
       "photoUrl": "",
       "missingAt": "2025-07-25 11:40",
       "locationText": "경상북도 봉화군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.8931350959362,
+      "lng": 128.732386681867,
       "clothing": "유곡리 수양경로당 일대에서 실종된 권영만(남, 64세)씨를 찾습니다. 170cm, 푸른색반팔, 회색반바지 착용 / 발견시 ☎112로 전화주시기 바랍니다.[봉화군]",
       "height": "",
       "weight": "",
@@ -88909,7 +88981,8 @@
       "features": "유곡리 수양경로당 일대에서 실종된 권영만(남, 64세)씨를 찾습니다. 170cm, 푸른색반팔, 회색반바지 착용 / 발견시 ☎112로 전화주시기 바랍니다.[봉화군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-244248",
@@ -88919,8 +88992,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-03 01:25",
       "locationText": "충청남도 계룡시",
-      "lat": null,
-      "lng": null,
+      "lat": 36.274558995832,
+      "lng": 127.248542561419,
       "clothing": "계룡시 엄사면에서 실종된 이영수씨(여,83세)를 찾습니다. 150cm 검정색 반팔티, 분홍색 반바지, 검정색 슬리퍼, 연락처 : 112 또는 119 [계룡시]",
       "height": "",
       "weight": "",
@@ -88928,7 +89001,8 @@
       "features": "계룡시 엄사면에서 실종된 이영수씨(여,83세)를 찾습니다. 150cm 검정색 반팔티, 분홍색 반바지, 검정색 슬리퍼, 연락처 : 112 또는 119 [계룡시]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-245722",
@@ -88957,8 +89031,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-18 11:39",
       "locationText": "충청남도 서천군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.0780362860107,
+      "lng": 126.702882822382,
       "clothing": "박희순(남,67세)를 찾습니다/치매/서천읍 남산리 산 29-7 마지막 목격/남색셔츠,청바지,실내화 착용/ [서천군]",
       "height": "",
       "weight": "",
@@ -88966,7 +89040,8 @@
       "features": "박희순(남,67세)를 찾습니다/치매/서천읍 남산리 산 29-7 마지막 목격/남색셔츠,청바지,실내화 착용/ [서천군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-247622",
@@ -88976,8 +89051,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-24 14:10",
       "locationText": "전라남도 무안군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.9903406227326,
+      "lng": 126.481704827287,
       "clothing": "청계면 월선리에서 실종된 정순자(여,81세)씨를 찾습니다. 왜소한 체격(150cm), 상의 티셔츠, 하의 곤색긴바지, 보라색 고무신 착용 ☎112[무안군]",
       "height": "",
       "weight": "",
@@ -88985,7 +89060,8 @@
       "features": "청계면 월선리에서 실종된 정순자(여,81세)씨를 찾습니다. 왜소한 체격(150cm), 상의 티셔츠, 하의 곤색긴바지, 보라색 고무신 착용 ☎112[무안군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-246397",
@@ -88995,8 +89071,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-16 18:37",
       "locationText": "강원특별자치도 철원군",
-      "lat": null,
-      "lng": null,
+      "lat": 38.1467919880831,
+      "lng": 127.313379851684,
       "clothing": "김옥분(여,82세)를 찾습니다./치매/윗상사리 마지막 목격/키150cm, 왜소한 체격/검은색 캡모자/베이지,그린색 바람막이/베이지색 바지 착용 ☎112 [철원군]",
       "height": "",
       "weight": "",
@@ -89004,7 +89080,8 @@
       "features": "김옥분(여,82세)를 찾습니다./치매/윗상사리 마지막 목격/키150cm, 왜소한 체격/검은색 캡모자/베이지,그린색 바람막이/베이지색 바지 착용 ☎112 [철원군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-247652",
@@ -89014,8 +89091,8 @@
       "photoUrl": "",
       "missingAt": "2025-08-24 19:15",
       "locationText": "전라남도 고흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6110820210892,
+      "lng": 127.284968746855,
       "clothing": "금산면에서 실종된 정동원(남,79세)씨를 찾습니다. 176cm, 상의 곤색 긴팔티, 하의 검정 긴바지, 등산복 차림 ☎112  [고흥군]",
       "height": "",
       "weight": "",
@@ -89023,7 +89100,8 @@
       "features": "금산면에서 실종된 정동원(남,79세)씨를 찾습니다. 176cm, 상의 곤색 긴팔티, 하의 검정 긴바지, 등산복 차림 ☎112  [고흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-250524",
@@ -89033,8 +89111,8 @@
       "photoUrl": "",
       "missingAt": "2025-12-01 21:25",
       "locationText": "전라남도 담양군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.3212107735494,
+      "lng": 126.988210711052,
       "clothing": "대덕면 주민 이영희(여, 70세)를 찾습니다. 158cm, 45kg추정 /상의 검정바지, 분홍색 신발 착용[담양경찰서]",
       "height": "",
       "weight": "",
@@ -89042,7 +89120,8 @@
       "features": "대덕면 주민 이영희(여, 70세)를 찾습니다. 158cm, 45kg추정 /상의 검정바지, 분홍색 신발 착용[담양경찰서]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-250138",
@@ -89109,8 +89188,8 @@
       "photoUrl": "",
       "missingAt": "2025-11-08 10:43",
       "locationText": "경상북도 문경시",
-      "lat": null,
-      "lng": null,
+      "lat": 36.5865273680411,
+      "lng": 128.186771917242,
       "clothing": "신흥시장에서 실종된 윤순분(여, 81세)를 찾습니다. 보라색모자, 남색 상의, 자주색 바지, 검정색 운동화 착용. ☎ 112, 119 [문경시]",
       "height": "",
       "weight": "",
@@ -89118,7 +89197,8 @@
       "features": "신흥시장에서 실종된 윤순분(여, 81세)를 찾습니다. 보라색모자, 남색 상의, 자주색 바지, 검정색 운동화 착용. ☎ 112, 119 [문경시]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-247809",
@@ -89242,8 +89322,8 @@
       "photoUrl": "",
       "missingAt": "2026-01-17 18:07",
       "locationText": "전라남도 해남군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.5735165884839,
+      "lng": 126.599270065365,
       "clothing": "해남군 삼산면에서 실종된 김사례(여. 88세)씨를 찾습니다. 빨간색 점퍼,모자착용,걸을때 뒷짐을 짐 소재확인시 01094402331연락바랍니다[해남군]",
       "height": "",
       "weight": "",
@@ -89251,7 +89331,8 @@
       "features": "해남군 삼산면에서 실종된 김사례(여. 88세)씨를 찾습니다. 빨간색 점퍼,모자착용,걸을때 뒷짐을 짐 소재확인시 01094402331연락바랍니다[해남군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-252301",
@@ -89299,8 +89380,8 @@
       "photoUrl": "",
       "missingAt": "2025-09-17 13:15",
       "locationText": "전라남도 고흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6110820210892,
+      "lng": 127.284968746855,
       "clothing": "도화면 신호리에서 실종된 백대준(지적장애,52세,남)씨를 찾습니다. 165cm,파랑셔츠,검정바지 ☎112 [고흥군]",
       "height": "",
       "weight": "",
@@ -89308,7 +89389,8 @@
       "features": "도화면 신호리에서 실종된 백대준(지적장애,52세,남)씨를 찾습니다. 165cm,파랑셔츠,검정바지 ☎112 [고흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-249757",
@@ -89337,8 +89419,8 @@
       "photoUrl": "",
       "missingAt": "2025-11-22 12:22",
       "locationText": "충청북도 음성군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.9403218849117,
+      "lng": 127.690480041094,
       "clothing": "22일 오전 10시5분경 음성군 생극면에서 실종된 정광설(남, 63년생)을 찾습니다. 175~180cm, 짧은머리, 회색패딩, 환자복바지[음성군]",
       "height": "",
       "weight": "",
@@ -89346,7 +89428,8 @@
       "features": "22일 오전 10시5분경 음성군 생극면에서 실종된 정광설(남, 63년생)을 찾습니다. 175~180cm, 짧은머리, 회색패딩, 환자복바지[음성군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-251273",
@@ -89413,8 +89496,8 @@
       "photoUrl": "",
       "missingAt": "2026-01-18 09:58",
       "locationText": "경상북도 의성군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.3527164442431,
+      "lng": 128.697077816075,
       "clothing": "배연숙씨(여, 67세)를 찾습니다\r\n키155cm, 몸무게55kg,\r\n파마머리에 백발\r\n보신 분은 신고 바랍니다. ☎ 112(의성경찰서)\r\n[의성군]",
       "height": "",
       "weight": "",
@@ -89422,7 +89505,8 @@
       "features": "배연숙씨(여, 67세)를 찾습니다\r\n키155cm, 몸무게55kg,\r\n파마머리에 백발\r\n보신 분은 신고 바랍니다. ☎ 112(의성경찰서)\r\n[의성군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-251526",
@@ -89622,8 +89706,8 @@
       "photoUrl": "",
       "missingAt": "2025-12-27 08:59",
       "locationText": "전라남도 담양군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.3212107735494,
+      "lng": 126.988210711052,
       "clothing": "담양읍 연화길167-10 주민 이순덕씨(여,84세)를 찾습니다 상의 보랏빛 꽃무늬, 하의 갈색바지, 검정색 슬리퍼 착용 발견시 담양경찰서로 연락바랍니다[담양군청]",
       "height": "",
       "weight": "",
@@ -89631,7 +89715,8 @@
       "features": "담양읍 연화길167-10 주민 이순덕씨(여,84세)를 찾습니다 상의 보랏빛 꽃무늬, 하의 갈색바지, 검정색 슬리퍼 착용 발견시 담양경찰서로 연락바랍니다[담양군청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-251932",
@@ -89641,8 +89726,8 @@
       "photoUrl": "",
       "missingAt": "2026-01-03 09:45",
       "locationText": "충청북도 괴산군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.8153571576603,
+      "lng": 127.786652163107,
       "clothing": "청천면에서 실종된 이규열씨(남, 69세)를 찾습니다 - 168cm, 70kg, 파란색상의, 파란색긴바지, 검정신발, 손목미아방지팔찌, 흰머리 ☎112 [괴산군]",
       "height": "",
       "weight": "",
@@ -89650,7 +89735,8 @@
       "features": "청천면에서 실종된 이규열씨(남, 69세)를 찾습니다 - 168cm, 70kg, 파란색상의, 파란색긴바지, 검정신발, 손목미아방지팔찌, 흰머리 ☎112 [괴산군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-251531",
@@ -90420,8 +90506,8 @@
       "photoUrl": "",
       "missingAt": "2026-02-07 15:56",
       "locationText": "경상북도 영양군",
-      "lat": null,
-      "lng": null,
+      "lat": 36.6667028574184,
+      "lng": 129.112510246081,
       "clothing": "입압면에서 실종된 박기락(남, 만 53세)을 찾습니다. 흰색포터 차량(96노 2299) ☎ 112, 119 [영양군]",
       "height": "",
       "weight": "",
@@ -90429,7 +90515,8 @@
       "features": "입압면에서 실종된 박기락(남, 만 53세)을 찾습니다. 흰색포터 차량(96노 2299) ☎ 112, 119 [영양군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-254884",
@@ -90752,7 +90839,8 @@
       "features": "포항시 남구 대도동 치매여성 실종. 홍금옥(73세·160cm·56kg) 안경·짧은머리, 노란점퍼·검정바지. 발견 시 112 신고 [경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-255164",
@@ -90876,8 +90964,8 @@
       "photoUrl": "",
       "missingAt": "2026-03-04 12:20",
       "locationText": "전북특별자치도 진안군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.7917723036084,
+      "lng": 127.424865465441,
       "clothing": "성수면 신고마을에서 3월 2일 실종된 도운순(47년생, 여)를 찾습니다. 키 150cm, 반백발, 베이지색 분홍조끼, 흰색신발 063-430- 0229[진안군]",
       "height": "",
       "weight": "",
@@ -90885,7 +90973,8 @@
       "features": "성수면 신고마을에서 3월 2일 실종된 도운순(47년생, 여)를 찾습니다. 키 150cm, 반백발, 베이지색 분홍조끼, 흰색신발 063-430- 0229[진안군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-257686",
@@ -90961,7 +91050,8 @@
       "features": "포항시 남구 송도동 치매노인 실종. 전기복(77세·160cm이하), 베이지색패딩·검정면바지/창모자·회색운동화, 발견 시 112 신고[경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-257487",
@@ -90971,8 +91061,8 @@
       "photoUrl": "",
       "missingAt": "2026-04-03 13:12",
       "locationText": "전라남도 고흥군 고흥읍",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6062565543403,
+      "lng": 127.280722165089,
       "clothing": "실종자(고흥읍 등암리) 남성(58세)을 찾습니다.▲180cm 마른체형▲연두색 모자,검은색 백팩,붉은 자켓, 체크 셔츠, 회색 바지,검은색 운동화☎112 [고흥군]",
       "height": "",
       "weight": "",
@@ -90980,7 +91070,8 @@
       "features": "실종자(고흥읍 등암리) 남성(58세)을 찾습니다.▲180cm 마른체형▲연두색 모자,검은색 백팩,붉은 자켓, 체크 셔츠, 회색 바지,검은색 운동화☎112 [고흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-257403",
@@ -90990,8 +91081,8 @@
       "photoUrl": "",
       "missingAt": "2026-03-30 15:54",
       "locationText": "전라남도 해남군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.5735165884839,
+      "lng": 126.599270065365,
       "clothing": "화산면에서 실종된 김일동씨(남,79세)찾습니다. 해창리578 실종(치매어르신)회색바지,회색잠바, 검정운동화, 흰색 긴머리 해남경찰서: 530-1333  [해남군]",
       "height": "",
       "weight": "",
@@ -90999,7 +91090,8 @@
       "features": "화산면에서 실종된 김일동씨(남,79세)찾습니다. 해창리578 실종(치매어르신)회색바지,회색잠바, 검정운동화, 흰색 긴머리 해남경찰서: 530-1333  [해남군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-258119",
@@ -91085,8 +91177,8 @@
       "photoUrl": "",
       "missingAt": "2026-04-25 16:00",
       "locationText": "전라남도 고흥군",
-      "lat": null,
-      "lng": null,
+      "lat": 34.6110820210892,
+      "lng": 127.284968746855,
       "clothing": "실종자(금산면 남천마을) 남성 김태환(53세)을 찾습니다▲170cm 마른체형▲지적장애, 검정색계통 상하의 ☎112 [고흥군]",
       "height": "",
       "weight": "",
@@ -91094,7 +91186,8 @@
       "features": "실종자(금산면 남천마을) 남성 김태환(53세)을 찾습니다▲170cm 마른체형▲지적장애, 검정색계통 상하의 ☎112 [고흥군]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-258714",
@@ -91104,8 +91197,8 @@
       "photoUrl": "",
       "missingAt": "2026-05-10 18:13",
       "locationText": "경상남도 의령군",
-      "lat": null,
-      "lng": null,
+      "lat": 35.3222352197812,
+      "lng": 128.261686482096,
       "clothing": "의령군 용덕면 주민인 최상문씨(남,75세)를 찾습니다. 160cm,마른편,곤색T,검정색바지,운동화 착용[의령군청 당직실 570-2222]",
       "height": "",
       "weight": "",
@@ -91113,7 +91206,8 @@
       "features": "의령군 용덕면 주민인 최상문씨(남,75세)를 찾습니다. 160cm,마른편,곤색T,검정색바지,운동화 착용[의령군청 당직실 570-2222]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-258796",
@@ -91123,8 +91217,8 @@
       "photoUrl": "",
       "missingAt": "2026-05-13 21:05",
       "locationText": "경상북도 포항시 북구 득량동",
-      "lat": null,
-      "lng": null,
+      "lat": 36.0383697071452,
+      "lng": 129.337850310325,
       "clothing": "포항시 북구 득량동에서 미귀가 청소년을 찾습니다. 안아조(남, 14세), 172cm, 이동중 교복, 안경 미착용, 크록스 신발, 발견 시 112신고 [경찰청]",
       "height": "",
       "weight": "",
@@ -91132,7 +91226,8 @@
       "features": "포항시 북구 득량동에서 미귀가 청소년을 찾습니다. 안아조(남, 14세), 172cm, 이동중 교복, 안경 미착용, 크록스 신발, 발견 시 112신고 [경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     }
   ]
 }
