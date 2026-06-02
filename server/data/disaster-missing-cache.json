@@ -7,7 +7,7 @@
     "latestPage": 526,
     "refreshedAt": "2026-06-01T04:48:29.920Z",
     "itemCount": 4796,
-    "savedAt": "2026-06-01T15:47:53.420Z"
+    "savedAt": "2026-06-02T06:06:24.005Z"
   },
   "items": [
     {
@@ -86275,7 +86275,8 @@
       "features": "도봉구 주민인 임용택씨(남,67세)를 찾습니다-162cm,62kg,검정점퍼,검정바지,검정모자,등산화\r\nvo.la/hsyNuV / ☎182 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226771",
@@ -86428,7 +86429,8 @@
       "features": "중랑구 주민인 강명운씨(남,82세)를 찾습니다-150cm,60kg,통통,백발,검정패딩,검정긴바지,갈색슬리퍼\r\nvo.la/HZyBxK / ☎112 [서울경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "unresolved"
     },
     {
       "id": "disaster-226778",
@@ -86477,8 +86479,8 @@
       "photoUrl": "",
       "missingAt": "2024-11-20 18:23",
       "locationText": "광주광역시 서구",
-      "lat": null,
-      "lng": null,
+      "lat": 35.1520722691295,
+      "lng": 126.890187526298,
       "clothing": "서구 주민인 허조배씨(남,79세)를 찾습니다-163cm,53kg,중절모,베이지색점퍼,검정바지,흰슬리퍼,흰마스크\r\nvo.la/pJogWY / ☎112 [광주경찰청]",
       "height": "",
       "weight": "",
@@ -86486,7 +86488,8 @@
       "features": "서구 주민인 허조배씨(남,79세)를 찾습니다-163cm,53kg,중절모,베이지색점퍼,검정바지,흰슬리퍼,흰마스크\r\nvo.la/pJogWY / ☎112 [광주경찰청]",
       "sourceUrl": "https://www.safetydata.go.kr/disaster-data/view?dataSn=228",
       "status": "disaster-message",
-      "sourceLabel": "긴급재난문자"
+      "sourceLabel": "긴급재난문자",
+      "geocodeStatus": "resolved"
     },
     {
       "id": "disaster-226756",

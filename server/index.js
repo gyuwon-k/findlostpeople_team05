@@ -19,6 +19,7 @@ import { fetchAlerts, searchMissingPeople } from "./lib/safeDream.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, "data");
 const reportPath = path.join(dataDir, "guardian-reports.local.json");
+const sightingReportsPath = path.join(dataDir, "sighting-reports.local.json");
 const usersPath = path.join(dataDir, "users.local.json");
 const sessionsPath = path.join(dataDir, "sessions.local.json");
 const localMissingPath = path.join(dataDir, "local-missing.local.json");
@@ -488,6 +489,32 @@ function sortByRecent(people) {
   });
 }
 
+function getSightingReportPoints(report) {
+  let points = 10;
+  if (report.photoUrl) points += 10;
+  if (report.contactPhone) points += 5;
+  if (String(report.content || "").trim().length >= 40) points += 5;
+  if (report.status === "approved") points += 30;
+  if (report.isDecisive) points += 50;
+  return points;
+}
+
+const reporterBadgeTiers = [
+  { id: "sprout", level: 1, label: "\uC0C8\uC2F9 \uC81C\uBCF4\uC790", minPoints: 0, icon: "light" },
+  { id: "neighbor", level: 2, label: "\uB3D9\uB124 \uC81C\uBCF4\uC790", minPoints: 50, icon: "pinlight" },
+  { id: "steady", level: 3, label: "\uC131\uC2E4 \uC81C\uBCF4\uC790", minPoints: 120, icon: "shieldhome" },
+  { id: "trusted", level: 4, label: "\uC2E0\uB8B0 \uC81C\uBCF4\uC790", minPoints: 220, icon: "handstar" },
+  { id: "excellent", level: 5, label: "\uC6B0\uC218 \uC81C\uBCF4\uC790", minPoints: 350, icon: "ribboncheck" },
+  { id: "core", level: 6, label: "\uD575\uC2EC \uC81C\uBCF4\uC790", minPoints: 500, icon: "wreath" },
+  { id: "lifelink", level: 7, label: "\uC0DD\uBA85 \uC5F0\uACB0\uC790", minPoints: 800, icon: "lifelink" }
+];
+
+function getReporterBadge(totalPoints) {
+  return [...reporterBadgeTiers]
+    .reverse()
+    .find((item) => totalPoints >= item.minPoints) || reporterBadgeTiers[0];
+}
+
 async function getLocatedDisasterMessages(query) {
   const limit = Math.min(Math.max(Number(query.limit || 40), 1), 80);
   const candidateLimit = Math.min(Math.max(Number(query.candidateLimit || 180), limit), 500);
@@ -871,6 +898,86 @@ app.post("/api/guardian-reports", asyncRoute(async (req, res) => {
   res.status(201).json({
     report,
     message: "등록 요청이 접수되었습니다. 검토 후 공개 여부가 결정됩니다."
+  });
+}));
+
+app.get("/api/sighting-reports/mine", requireAuth(async (req, res) => {
+  const reports = await readJsonFile(sightingReportsPath);
+  const items = reports
+    .filter((report) => report.reporterId === req.user.id)
+    .map((report) => ({
+      ...report,
+      pointsAwarded: Number.isFinite(Number(report.pointsAwarded))
+        ? Number(report.pointsAwarded)
+        : getSightingReportPoints(report)
+    }))
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const totalPoints = items.reduce(
+    (sum, report) => sum + (Number(report.pointsAwarded) || 0),
+    0
+  );
+
+  res.json({
+    items,
+    summary: {
+      totalReports: items.length,
+      totalPoints,
+      decisiveReports: items.filter((report) => report.isDecisive).length,
+      photoReports: items.filter((report) => report.photoUrl).length,
+      badge: getReporterBadge(totalPoints),
+      badgeGuide: reporterBadgeTiers
+    }
+  });
+}));
+
+app.post("/api/sighting-reports", requireAuth(async (req, res) => {
+  const body = req.body || {};
+  const required = ["missingPersonName", "sightedAt", "locationText", "content"];
+  const missing = required.filter((key) => !String(body[key] || "").trim());
+
+  if (missing.length) {
+    return res.status(400).json({
+      code: "VALIDATION_ERROR",
+      message: "필수 제보 항목을 입력해주세요.",
+      fields: missing
+    });
+  }
+
+  const reports = await readJsonFile(sightingReportsPath);
+  const reportId = `sighting-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+  let photoUrl = "";
+
+  if (body.photoDataUrl) {
+    photoUrl = await savePhotoDataUrl(body.photoDataUrl, reportId);
+  }
+
+  const report = {
+    id: reportId,
+    missingPersonId: String(body.missingPersonId || ""),
+    missingPersonName: String(body.missingPersonName || "").trim(),
+    missingAt: String(body.missingAt || "").trim(),
+    sourceType: String(body.sourceType || "").trim(),
+    sightedAt: String(body.sightedAt || "").trim(),
+    locationText: String(body.locationText || "").trim(),
+    content: String(body.content || "").trim(),
+    contactPhone: String(body.contactPhone || "").trim(),
+    photoUrl,
+    lat: Number.isFinite(Number(body.lat)) ? Number(body.lat) : null,
+    lng: Number.isFinite(Number(body.lng)) ? Number(body.lng) : null,
+    status: "review_pending",
+    isDecisive: false,
+    reporterId: req.user.id,
+    reporterName: req.user.name,
+    createdAt: new Date().toISOString()
+  };
+  report.pointsAwarded = getSightingReportPoints(report);
+
+  reports.push(report);
+  await writeJsonFile(sightingReportsPath, reports);
+
+  res.status(201).json({
+    report,
+    message: "제보가 접수되었습니다. 검토 후 반영됩니다."
   });
 }));
 

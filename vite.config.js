@@ -9,7 +9,8 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       proxy: {
-        "/api": env.VITE_API_BASE_URL || "http://localhost:4000"
+        "/api": env.VITE_API_BASE_URL || "http://localhost:4000",
+        "/uploads": env.VITE_API_BASE_URL || "http://localhost:4000"
       }
     }
   };

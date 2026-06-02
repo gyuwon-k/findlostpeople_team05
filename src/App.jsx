@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
+  Award,
+  BadgeCheck,
   BarChart3,
   CalendarClock,
+  Camera,
   CheckCircle2,
   FileSearch,
   Home,
@@ -14,15 +17,19 @@ import {
   Phone,
   Ruler,
   Search,
+  Send,
   ShieldCheck,
   Shirt,
   Sparkles,
+  Sprout,
   UserCircle,
   UserRoundPlus,
   Weight,
+  X,
 } from "lucide-react";
 
 const API_BASE = "";
+const UPLOAD_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY || "";
 const KNU_CENTER = { lat: 35.8908, lng: 128.6111 };
 const ALERT_ROW_SIZE = 100;
@@ -52,6 +59,11 @@ const statsSections = [
   { id: "region", label: "지역 분석" },
   { id: "time", label: "최근 발생 추이" },
   { id: "demographic", label: "성별·연령 분석" },
+];
+
+const myPageSections = [
+  { id: "info", label: "내정보" },
+  { id: "reports", label: "내 제보내역" },
 ];
 
 const trendYears = [2023, 2024, 2025, 2026];
@@ -401,8 +413,8 @@ function resolvePhotoUrl(photoUrl) {
   ) {
     return value;
   }
-  if (value.startsWith("/uploads/") && API_BASE) {
-    return `${API_BASE}${value}`;
+  if (value.startsWith("/uploads/")) {
+    return `${UPLOAD_BASE}${value}`;
   }
   return value;
 }
@@ -516,16 +528,22 @@ function useKakaoMap(
       if (cancelled || !targetContainer || instanceRef.current) return;
 
       targetContainer.innerHTML = "";
+      const initialCenter = preferredCenter || KNU_CENTER;
+      const initialLevel = 8;
 
       instanceRef.current = new window.kakao.maps.Map(targetContainer, {
-        center: new window.kakao.maps.LatLng(KNU_CENTER.lat, KNU_CENTER.lng),
-        level: 6,
+        center: new window.kakao.maps.LatLng(initialCenter.lat, initialCenter.lng),
+        level: initialLevel,
       });
 
-      window.setTimeout(() => {
+      [0, 120, 320].forEach((delay) => window.setTimeout(() => {
         if (!instanceRef.current) return;
         instanceRef.current?.relayout?.();
-      }, 0);
+        instanceRef.current.setCenter(
+          new window.kakao.maps.LatLng(initialCenter.lat, initialCenter.lng),
+        );
+        instanceRef.current.setLevel(initialLevel);
+      }, delay));
 
       hasCenteredRef.current = false;
       setMapReady(true);
@@ -554,7 +572,7 @@ function useKakaoMap(
       if (container) container.innerHTML = "";
       setMapReady(false);
     };
-  }, [containerRef, instanceRef, isVisible]);
+  }, [containerRef, instanceRef, isVisible, preferredCenter]);
 
   useEffect(() => {
     if (
@@ -570,6 +588,7 @@ function useKakaoMap(
     instanceRef.current.setCenter(
       new window.kakao.maps.LatLng(preferredCenter.lat, preferredCenter.lng),
     );
+    instanceRef.current.setLevel(8);
     instanceRef.current.relayout?.();
     hasCenteredRef.current = true;
   }, [mapReady, preferredCenter, instanceRef]);
@@ -599,18 +618,12 @@ function useKakaoMap(
       markersRef.current.push(marker);
     });
 
-    if (visible.length > 0 && !hasFittedMarkersRef.current) {
+    if (visible.length > 0 && !preferredCenter && !hasFittedMarkersRef.current) {
       const bounds = new window.kakao.maps.LatLngBounds();
 
       visible.forEach((person) => {
         bounds.extend(new window.kakao.maps.LatLng(person.lat, person.lng));
       });
-
-      if (preferredCenter) {
-        bounds.extend(
-          new window.kakao.maps.LatLng(preferredCenter.lat, preferredCenter.lng),
-        );
-      }
 
       instanceRef.current.setBounds(bounds);
       instanceRef.current.relayout?.();
@@ -622,15 +635,18 @@ function useKakaoMap(
 function App() {
   const [activeTab, setActiveTab] = useState("map");
   const [activeStatsSection, setActiveStatsSection] = useState("region");
+  const [activeMyPageSection, setActiveMyPageSection] = useState("info");
   const [listSort, setListSort] = useState("recent");
   const [alerts, setAlerts] = useState([]);
   const [localPeople, setLocalPeople] = useState([]);
   const [searchMapPeople, setSearchMapPeople] = useState([]);
   const [disasterStatsAlerts, setDisasterStatsAlerts] = useState([]);
+  const [statsDataLoaded, setStatsDataLoaded] = useState(false);
   const [mapDisasterPeople, setMapDisasterPeople] = useState([]);
   const [mapDisasterLoading, setMapDisasterLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -748,12 +764,26 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (activeTab !== "stats" || statsDataLoaded) return;
+
+    let cancelled = false;
+
     fetchJson("/api/disaster-missing/messages")
-      .then((data) =>
-        setDisasterStatsAlerts((data.items || []).filter(isMissingMessageAlert)),
-      )
-      .catch(() => setDisasterStatsAlerts([]));
-  }, []);
+      .then((data) => {
+        if (cancelled) return;
+        setDisasterStatsAlerts((data.items || []).filter(isMissingMessageAlert));
+        setStatsDataLoaded(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setDisasterStatsAlerts([]);
+        setStatsDataLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, statsDataLoaded]);
 
   const userMapCenter = useMemo(() => getUserMapCenter(currentUser), [currentUser]);
 
@@ -765,9 +795,9 @@ function App() {
       }
 
       const params = new URLSearchParams({
-        limit: "30",
-        candidateLimit: "120",
-        geocodeLimit: "30",
+        limit: "24",
+        candidateLimit: "80",
+        geocodeLimit: "18",
       });
 
       if (currentUser?.lat && currentUser?.lng) {
@@ -816,6 +846,10 @@ function App() {
 
   const mapAlerts = useMemo(() => {
     const merged = [
+      ...alerts.map((person) => ({
+        ...person,
+        sourceType: person.sourceType || "official",
+      })),
       ...mapDisasterPeople,
       ...localPeople,
     ];
@@ -833,17 +867,17 @@ function App() {
         timeFilter === "all" || getMissingDateBucket(person.missingAt) === timeFilter;
       return matchesTime && sourceMatches(person, sourceFilter);
     });
-  }, [mapDisasterPeople, localPeople, searchMapPeople, timeFilter, sourceFilter]);
+  }, [alerts, mapDisasterPeople, localPeople, searchMapPeople, timeFilter, sourceFilter]);
 
   const sidebarAlerts = useMemo(() => {
-    const merged = mergePeopleForView(disasterStatsAlerts, mapAlerts);
+    const merged = mapAlerts;
 
     return merged.filter((person) => {
       const matchesTime =
         timeFilter === "all" || getMissingDateBucket(person.missingAt) === timeFilter;
       return matchesTime && sourceMatches(person, sourceFilter);
     });
-  }, [disasterStatsAlerts, mapAlerts, timeFilter, sourceFilter]);
+  }, [mapAlerts, timeFilter, sourceFilter]);
 
   const showSearchPersonOnMap = useCallback((person) => {
     setSearchMapPeople((current) => {
@@ -903,7 +937,7 @@ function App() {
       const dateA = parseMissingDate(a.missingAt)?.getTime() || 0;
       const dateB = parseMissingDate(b.missingAt)?.getTime() || 0;
       return dateB - dateA;
-    });
+    }).slice(0, 140);
   }, [sidebarAlerts, listSort]);
 
   useKakaoMap(
@@ -936,6 +970,7 @@ function App() {
     setAuthToken("");
     setCurrentUser(null);
     setLocalPeople([]);
+    setReportTarget(null);
     setHasEntered(false);
   };
 
@@ -1021,6 +1056,44 @@ function App() {
               );
             }
 
+            if (tab.id === "mypage") {
+              return (
+                <div className="nav-group" key={tab.id}>
+                  <button
+                    className={activeTab === tab.id ? "tab active" : "tab"}
+                    type="button"
+                    aria-expanded={activeTab === "mypage"}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{getTabLabel(tab)}</span>
+                  </button>
+
+                  {activeTab === "mypage" && (
+                    <div className="tab-child-list" aria-label="마이페이지 하위 메뉴">
+                      {myPageSections.map((section) => (
+                        <button
+                          key={section.id}
+                          className={
+                            activeMyPageSection === section.id
+                              ? "tab-child active"
+                              : "tab-child"
+                          }
+                          type="button"
+                          onClick={() => {
+                            setActiveTab("mypage");
+                            setActiveMyPageSection(section.id);
+                          }}
+                        >
+                          {section.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <button
                 key={tab.id}
@@ -1039,14 +1112,6 @@ function App() {
 
         <div className="user-box">
           <span>{currentUser.name}</span>
-          <button
-            className="reset-button"
-            type="button"
-            onClick={() => setActiveTab("mypage")}
-          >
-            <UserCircle size={15} />
-            내정보
-          </button>
           <button className="reset-button" type="button" onClick={handleLogout}>
             <LogOut size={15} />
             로그아웃
@@ -1092,6 +1157,7 @@ function App() {
               toggleSelectedPerson(person);
             }}
             onCloseDetail={() => setIsDetailOpen(false)}
+            onOpenReport={setReportTarget}
           />
         </div>
 
@@ -1102,6 +1168,7 @@ function App() {
         >
           <SearchView
             onSelect={showSearchPersonOnMap}
+            onOpenReport={setReportTarget}
             setActiveTab={setActiveTab}
           />
         </div>
@@ -1111,11 +1178,14 @@ function App() {
             activeTab === "stats" ? "view-pane active" : "view-pane hidden"
           }
         >
-          <StatsView
-            activeSection={activeStatsSection}
-            stats={statsRegions.length ? statsRegions : stats}
-            alerts={statsAlerts.length ? statsAlerts : alerts}
-          />
+          {activeTab === "stats" && (
+            <StatsView
+              activeSection={activeStatsSection}
+              stats={statsRegions.length ? statsRegions : stats}
+              alerts={statsAlerts.length ? statsAlerts : alerts}
+              loading={!statsDataLoaded}
+            />
+          )}
         </div>
 
         <div
@@ -1136,6 +1206,8 @@ function App() {
           }
         >
           <MyPageView
+            activeSection={activeMyPageSection}
+            authToken={authToken}
             user={currentUser}
             locatedCount={locatedCount}
             mapCount={mapAlerts.length}
@@ -1143,6 +1215,14 @@ function App() {
           />
         </div>
       </main>
+
+      {reportTarget && (
+        <SightingReportModal
+          authToken={authToken}
+          person={reportTarget}
+          onClose={() => setReportTarget(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1161,6 +1241,7 @@ function MapView({
   onRefresh,
   onSelect,
   onCloseDetail,
+  onOpenReport,
   timeFilter,
   onChangeTimeFilter,
   sourceFilter,
@@ -1332,7 +1413,7 @@ function MapView({
               <span>실종정보</span>
               <strong>상세 카드 확인</strong>
             </div>
-            <PersonDetail person={selected} />
+            <PersonDetail person={selected} onOpenReport={onOpenReport} />
           </div>
           </aside>
         ) : null}
@@ -1341,56 +1422,289 @@ function MapView({
   );
 }
 
-function MyPageView({ user, locatedCount, mapCount, localCount }) {
+function MyPageView({
+  activeSection,
+  authToken,
+  user,
+  locatedCount,
+  mapCount,
+  localCount,
+}) {
   const hasAddressPoint = Number.isFinite(Number(user?.lat)) && Number.isFinite(Number(user?.lng));
+  const isReports = activeSection === "reports";
+  const [reportSummary, setReportSummary] = useState(null);
+  const [showBadgeGuide, setShowBadgeGuide] = useState(false);
+
+  useEffect(() => {
+    if (!authToken) {
+      setReportSummary(null);
+      return;
+    }
+
+    let cancelled = false;
+    fetchAuthJson("/api/sighting-reports/mine", authToken)
+      .then((data) => {
+        if (!cancelled) setReportSummary(data.summary || null);
+      })
+      .catch(() => {
+        if (!cancelled) setReportSummary(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authToken, activeSection]);
+
+  const badge = reportSummary?.badge;
+  const badgeGuide = reportSummary?.badgeGuide || [];
 
   return (
     <section className="content-view mypage-view" aria-labelledby="mypage-title">
       <div className="section-heading">
         <div>
-          <h2 id="mypage-title">마이페이지</h2>
-          <p>로그인한 계정과 지도 기준 위치를 확인할 수 있습니다.</p>
+          <h2 id="mypage-title">{isReports ? "\uB0B4 \uC81C\uBCF4\uB0B4\uC5ED" : "\uB0B4\uC815\uBCF4"}</h2>
+          <p>
+            {isReports
+              ? "\uB0B4\uAC00 \uC791\uC131\uD55C \uC2E4\uC885 \uC81C\uBCF4\uB97C \uAC80\uD1A0 \uC0C1\uD0DC\uC640 \uD568\uAED8 \uD655\uC778\uD569\uB2C8\uB2E4."
+              : "\uB85C\uADF8\uC778\uD55C \uACC4\uC815\uACFC \uC9C0\uC5ED \uAE30\uC900 \uC704\uCE58\uB97C \uD655\uC778\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."}
+          </p>
         </div>
       </div>
 
-      <div className="mypage-grid">
-        <article className="profile-panel">
-          <div className="profile-avatar" aria-hidden="true">
-            {user?.name?.slice(0, 1) || "?"}
-          </div>
-          <div>
-            <span>내 계정</span>
-            <h3>{user?.name || "이름 없음"}</h3>
-            <p>{hasAddressPoint ? "주소 좌표 확인됨" : "주소 좌표 미확인"}</p>
-          </div>
-        </article>
+      {isReports ? (
+        <MyReportList authToken={authToken} />
+      ) : (
+        <div className="mypage-grid">
+          <article className="profile-panel">
+            <div className="profile-avatar" aria-hidden="true">
+              {user?.name?.slice(0, 1) || "?"}
+            </div>
+            <div>
+              <span>{"\uB0B4 \uACC4\uC815"}</span>
+              <div className="profile-name-row">
+                <h3>{user?.name || "\uC774\uB984 \uC5C6\uC74C"}</h3>
+                {badge && (
+                  <div className="badge-wrap">
+                    <span className={"trust-badge " + badge.id}>
+                      <span className="badge-emblem" aria-hidden="true">
+                        <BadgeIcon icon={badge.icon} level={badge.level} />
+                      </span>
+                      <span>Lv.{badge.level} {badge.label}</span>
+                    </span>
+                    <button
+                      className="badge-guide-button"
+                      type="button"
+                      aria-label={"\uBC43\uC9C0 \uB808\uBCA8 \uAC00\uC774\uB4DC"}
+                      aria-expanded={showBadgeGuide}
+                      onClick={() => setShowBadgeGuide((current) => !current)}
+                    >
+                      ?
+                    </button>
+                    {showBadgeGuide && (
+                      <div className="badge-guide-panel">
+                        <div className="badge-guide-heading">
+                          <strong>{"\uBC43\uC9C0 \uB808\uBCA8 \uAC00\uC774\uB4DC"}</strong>
+                          <span>{"\uC81C\uBCF4 \uD3EC\uC778\uD2B8\uAC00 \uC313\uC774\uBA74 \uC790\uB3D9\uC73C\uB85C \uC62C\uB77C\uAC11\uB2C8\uB2E4."}</span>
+                        </div>
+                        <div className="badge-guide-list">
+                          {badgeGuide.map((item) => (
+                            <div
+                              className={item.id === badge.id ? "badge-guide-row active" : "badge-guide-row"}
+                              key={item.id}
+                            >
+                              <span className={"mini-badge-emblem " + item.id} aria-hidden="true">
+                                <BadgeIcon icon={item.icon} level={item.level} />
+                              </span>
+                              <div>
+                                <strong>Lv.{item.level} {item.label}</strong>
+                                <span>{item.minPoints}P {"\uC774\uC0C1"}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p>{hasAddressPoint ? "\uC8FC\uC18C \uC88C\uD45C \uD655\uC778\uB428" : "\uC8FC\uC18C \uC88C\uD45C \uBBF8\uD655\uC778"}</p>
+            </div>
+          </article>
 
-        <div className="profile-info-list">
-          <ProfileInfoItem icon={Mail} label="이메일" value={user?.email || "미등록"} />
-          <ProfileInfoItem icon={Home} label="주소" value={user?.address || "미등록"} />
-          <ProfileInfoItem
-            icon={MapPinned}
-            label="지도 좌표"
-            value={
-              hasAddressPoint
-                ? `${Number(user.lat).toFixed(6)}, ${Number(user.lng).toFixed(6)}`
-                : "좌표 없음"
-            }
-          />
-          <ProfileInfoItem
-            icon={CalendarClock}
-            label="가입일"
-            value={formatShortDate(user?.createdAt)}
-          />
-        </div>
+          <div className="profile-info-list">
+            <ProfileInfoItem icon={Mail} label={"\uC774\uBA54\uC77C"} value={user?.email || "\uBBF8\uB4F1\uB85D"} />
+            <ProfileInfoItem icon={Home} label={"\uC8FC\uC18C"} value={user?.address || "\uBBF8\uB4F1\uB85D"} />
+            <ProfileInfoItem
+              icon={MapPinned}
+              label={"\uC9C0\uC5ED \uC88C\uD45C"}
+              value={
+                hasAddressPoint
+                  ? Number(user.lat).toFixed(6) + ", " + Number(user.lng).toFixed(6)
+                  : "\uC88C\uD45C \uC5C6\uC74C"
+              }
+            />
+            <ProfileInfoItem
+              icon={CalendarClock}
+              label={"\uAC00\uC785\uC77C"}
+              value={formatShortDate(user?.createdAt)}
+            />
+          </div>
 
-        <div className="status-row wide mypage-stats">
-          <Metric label="지도 표시 대상" value={`${mapCount}건`} />
-          <Metric label="좌표 확인됨" value={`${locatedCount}건`} />
-          <Metric label="직접 등록" value={`${localCount}건`} />
+          <div className="status-row wide mypage-stats">
+            <Metric label={"\uC81C\uBCF4 \uD3EC\uC778\uD2B8"} value={String(reportSummary?.totalPoints || 0) + "P"} />
+            <Metric label={"\uC81C\uBCF4 \uC218"} value={String(reportSummary?.totalReports || 0) + "\uAC74"} />
+            <Metric label={"\uC0AC\uC9C4\uCCA8\uBD80 \uC81C\uBCF4"} value={String(reportSummary?.photoReports || 0) + "\uAC74"} />
+          </div>
         </div>
-      </div>
+      )}
     </section>
+  );
+}
+
+function MyReportList({ authToken }) {
+  const [reports, setReports] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!authToken) {
+      setReports([]);
+      setSummary(null);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+
+    fetchAuthJson("/api/sighting-reports/mine", authToken)
+      .then((data) => {
+        if (cancelled) return;
+        setReports(data.items || []);
+        setSummary(data.summary || null);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err.message);
+        setReports([]);
+        setSummary(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authToken]);
+
+  if (loading) {
+    return (
+      <div className="mypage-list-state">
+        <Loader2 className="spin" size={20} />
+        {"\uC81C\uBCF4\uB0B4\uC5ED\uC744 \uBD88\uB7EC\uC624\uB294 \uC911\uC785\uB2C8\uB2E4."}
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="inline-error">{error}</div>;
+  }
+
+  if (reports.length === 0) {
+    return (
+      <div className="mypage-list-state">
+        <FileSearch size={22} />
+        {"\uC544\uC9C1 \uC791\uC131\uD55C \uC81C\uBCF4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4."}
+      </div>
+    );
+  }
+
+  return (
+    <div className="my-report-list">
+      {summary && (
+        <div className="my-report-summary-card">
+          <Metric label={"\uC81C\uBCF4 \uD3EC\uC778\uD2B8"} value={String(summary.totalPoints || 0) + "P"} />
+          <Metric label={"\uC81C\uBCF4 \uC218"} value={String(summary.totalReports || 0) + "\uAC74"} />
+          <Metric label={"\uC0AC\uC9C4\uCCA8\uBD80 \uC81C\uBCF4"} value={String(summary.photoReports || 0) + "\uAC74"} />
+        </div>
+      )}
+
+      {reports.map((report) => (
+        <article className="my-report-card" key={report.id}>
+          <div className="my-report-card-head">
+            <div>
+              <span>{"\uC81C\uBCF4 \uB300\uC0C1"}</span>
+              <h3>{report.missingPersonName || "\uC774\uB984 \uBBF8\uC0C1"}</h3>
+            </div>
+            <div className="report-card-badges">
+              <strong>{getReportStatusLabel(report.status)}</strong>
+              <strong className="point-chip">+{report.pointsAwarded || 0}P</strong>
+            </div>
+          </div>
+
+          <dl className="my-report-detail-list">
+            <div>
+              <dt>{"\uBAA9\uACA9 \uC2DC\uAC04"}</dt>
+              <dd>{report.sightedAt || "\uBBF8\uC785\uB825"}</dd>
+            </div>
+            <div>
+              <dt>{"\uBAA9\uACA9 \uC704\uCE58"}</dt>
+              <dd>{report.locationText || "\uBBF8\uC785\uB825"}</dd>
+            </div>
+            <div>
+              <dt>{"\uC791\uC131\uC77C"}</dt>
+              <dd>{formatShortDate(report.createdAt)}</dd>
+            </div>
+            <div>
+              <dt>{"\uC5F0\uB77D\uCC98"}</dt>
+              <dd>{report.contactPhone || "\uBBF8\uC785\uB825"}</dd>
+            </div>
+          </dl>
+
+          <p>{report.content}</p>
+
+          {report.photoUrl && (
+            <a
+              className="report-photo-link"
+              href={resolvePhotoUrl(report.photoUrl)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {"\uCCA8\uBD80 \uC0AC\uC9C4 \uBCF4\uAE30"}
+            </a>
+          )}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function getReportStatusLabel(status) {
+  if (status === "approved") return "\uD655\uC778\uB428";
+  if (status === "rejected") return "\uBC18\uB824\uB428";
+  return "\uAC80\uD1A0\uC911";
+}
+
+function BadgeIcon({ icon, level }) {
+  const iconMap = {
+    light: Sprout,
+    pinlight: MapPinned,
+    shieldhome: Home,
+    handstar: ShieldCheck,
+    ribboncheck: BadgeCheck,
+    wreath: Award,
+    lifelink: Sparkles,
+  };
+  const Icon = iconMap[icon] || BadgeCheck;
+
+  return (
+    <>
+      <Icon size={16} strokeWidth={2.5} aria-hidden="true" />
+      <b>{level}</b>
+    </>
   );
 }
 
@@ -1487,7 +1801,7 @@ function AlertListPanel({
   );
 }
 
-function SearchView({ onSelect, setActiveTab }) {
+function SearchView({ onSelect, onOpenReport, setActiveTab }) {
   const [form, setForm] = useState({
     nm: "",
     occrAdres: "",
@@ -1782,6 +2096,15 @@ function SearchView({ onSelect, setActiveTab }) {
                   <MapPin size={16} />
                   지도에서 보기
                 </button>
+
+                <button
+                  className="card-action-btn report-action-btn"
+                  type="button"
+                  onClick={() => onOpenReport(person)}
+                >
+                  <Send size={16} />
+                  제보하기
+                </button>
               </div>
             </article>
           ))}
@@ -1823,7 +2146,7 @@ function getDisplayRegion(locationText) {
   return firstToken || "지역 미상";
 }
 
-function StatsView({ activeSection, stats, alerts }) {
+function StatsView({ activeSection, stats, alerts, loading }) {
   const topRegion = stats[0]?.region || "집계 대기";
   const [selectedRegionId, setSelectedRegionId] = useState(
     regionAnalysisLayout[0].id,
@@ -1848,6 +2171,13 @@ function StatsView({ activeSection, stats, alerts }) {
           <h3>{activeStatsTitle}</h3>
           <p>{getStatsDescription(activeSection)}</p>
         </div>
+
+        {loading && (
+          <div className="stats-loading-note">
+            <Loader2 className="spin" size={18} />
+            통계 데이터를 불러오는 중입니다.
+          </div>
+        )}
 
         {activeSection === "region" && (
           <>
@@ -2658,7 +2988,7 @@ function RegisterView({ authToken, onCreated, onReload }) {
   );
 }
 
-function PersonDetail({ person }) {
+function PersonDetail({ person, onOpenReport }) {
   return (
     <article className="selected-card">
       <PersonSummary person={person} large />
@@ -2701,8 +3031,197 @@ function PersonDetail({ person }) {
           <Phone size={16} />
           182
         </a>
+
+        <button
+          className="primary-link report-button"
+          type="button"
+          onClick={() => onOpenReport?.(person)}
+        >
+          <Send size={16} />
+          제보하기
+        </button>
       </div>
     </article>
+  );
+}
+
+function SightingReportModal({ authToken, person, onClose }) {
+  const [form, setForm] = useState({
+    sightedAt: "",
+    locationText: "",
+    content: "",
+    contactPhone: "",
+  });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const photoPreviewUrl = useMemo(
+    () => (photoFile ? URL.createObjectURL(photoFile) : ""),
+    [photoFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    };
+  }, [photoPreviewUrl]);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+    setSubmitting(true);
+
+    try {
+      const photoDataUrl = photoFile ? await fileToDataUrl(photoFile) : "";
+      const data = await fetchAuthJson("/api/sighting-reports", authToken, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          missingPersonId: person?.id || "",
+          missingPersonName: person?.name || "",
+          missingAt: person?.missingAt || "",
+          sourceType: person?.sourceType || person?.sourceLabel || "",
+          lat: person?.lat ?? null,
+          lng: person?.lng ?? null,
+          ...form,
+          photoDataUrl,
+        }),
+      });
+
+      setMessage(data.message || "제보가 접수되었습니다.");
+      setForm({
+        sightedAt: "",
+        locationText: "",
+        content: "",
+        contactPhone: "",
+      });
+      setPhotoFile(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="report-modal-backdrop" role="dialog" aria-modal="true">
+      <section className="report-modal-card" aria-labelledby="report-modal-title">
+        <button
+          className="report-modal-close"
+          type="button"
+          aria-label="제보 창 닫기"
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+
+        <div className="report-modal-heading">
+          <span>실종 제보</span>
+          <h2 id="report-modal-title">{person?.name || "대상 미상"} 제보하기</h2>
+          <p>목격 위치와 시간을 중심으로 작성하면 검토에 도움이 됩니다.</p>
+        </div>
+
+        <form className="report-form" onSubmit={submit}>
+          <div className="report-target-box">
+            <PersonSummary person={person} />
+          </div>
+
+          <div className="report-field-grid">
+            <label>
+              목격 시간
+              <input
+                required
+                value={form.sightedAt}
+                onChange={(event) =>
+                  setForm({ ...form, sightedAt: event.target.value })
+                }
+                placeholder="예: 2026-06-02 14:30"
+              />
+            </label>
+
+            <label>
+              목격 위치
+              <input
+                required
+                value={form.locationText}
+                onChange={(event) =>
+                  setForm({ ...form, locationText: event.target.value })
+                }
+                placeholder={`예: ${person?.locationText || "대구 북구 복현오거리 근처"}`}
+              />
+            </label>
+          </div>
+
+          <label>
+            제보 내용
+            <textarea
+              required
+              value={form.content}
+              onChange={(event) =>
+                setForm({ ...form, content: event.target.value })
+              }
+              placeholder="옷차림, 이동 방향, 동행 여부 등 기억나는 내용을 적어주세요."
+            />
+          </label>
+
+          <label>
+            연락 가능한 번호
+            <input
+              value={form.contactPhone}
+              onChange={(event) =>
+                setForm({ ...form, contactPhone: event.target.value })
+              }
+              placeholder="선택 입력"
+            />
+          </label>
+
+          <div className="report-photo-row">
+            <div className="report-photo-preview">
+              {photoPreviewUrl ? (
+                <img src={photoPreviewUrl} alt="제보 사진 미리보기" />
+              ) : (
+                <div>
+                  <Camera size={24} />
+                  <span>사진 선택</span>
+                </div>
+              )}
+            </div>
+
+            <label className="custom-file-button report-file-button">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(event) =>
+                  setPhotoFile(event.target.files?.[0] || null)
+                }
+              />
+              사진 첨부
+            </label>
+          </div>
+
+          {message && (
+            <div className="success-box">
+              <CheckCircle2 size={18} />
+              {message}
+            </div>
+          )}
+
+          {error && <div className="inline-error">{error}</div>}
+
+          <div className="report-modal-actions">
+            <button className="reset-button" type="button" onClick={onClose}>
+              닫기
+            </button>
+            <button className="primary-button" type="submit" disabled={submitting}>
+              {submitting ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
+              제보 접수
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 
