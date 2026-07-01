@@ -104,7 +104,7 @@ npm install
 Windows PowerShell:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item env.example .env
 ```
 
 macOS 또는 Git Bash:
@@ -185,7 +185,7 @@ git push -u origin feature/minji-map-ui
 git push
 ```
 
-## 10. Pull Request 만들기
+## 10. Pull Request 만들기()
 
 GitHub 저장소에 들어갑니다.
 

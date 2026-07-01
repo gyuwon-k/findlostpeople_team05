@@ -1,0 +1,4 @@
+- [x] App.jsx 지도 탭 복귀 시 카카오맵 재표시/재중심 보정 로직 추가
+- [x] useKakaoMap effect 의존성 보강(selected 반영)
+- [x] 탭 전환 시 지도 relayout/center 보정 적용
+- [ ] 변경 사항 점검

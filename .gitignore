@@ -5,3 +5,7 @@ dist/
 npm-debug.log*
 .DS_Store
 server/data/guardian-reports.local.json
+server/data/users.local.json
+server/data/sessions.local.json
+server/data/local-missing.local.json
+server/uploads/
